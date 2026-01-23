@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum Role {
+  ADMIN     
+  MANAGER   
+  VIEWER    
+}
+
+enum AssinaturaStatus {
+  ATIVO
+  CANCELADO
+  EXPIRADO
+  RENOVACAO_PENDENTE
+}
+
+enum Moeda {
+  BRL
+  USD
+  EUR
+}
+
+
+model Usuario {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  nome      String
+  senha     String   // Hash 
+  role      Role     @default(VIEWER) 
+
+  ativo        Boolean            @default(true) // Soft Delete flag 
+  
+  createdAt DateTime @default(now())
+  deletedAt DateTime?
+
+  logs     Log[]     // Logs gerados por este usuário
+  assinaturas Assinatura[] // Assinaturas que este usuário é RESPONSÁVEL
+
+  @@map("usuarios")
+}
+
+
+model Servico {
+  id            String         @id @default(uuid())
+  nome          String         @unique // Ex: "Figma"
+  website       String?
+
+  deletedAt DateTime?
+
+  assinaturas Assinatura[]
+
+  @@map("servicos")
+}
+
+model Departamento {
+  id          Int            @id @default(autoincrement())
+  descricao   String    @unique
+
+  deletedAt DateTime?
+
+  assinaturas Assinatura[]
+
+  @@map("departamentos")
+}
+
+model Assinatura {
+  id        String             @id @default(uuid())
+  
+  servicoId String
+  service   Servico            @relation(fields: [servicoId], references: [id])
+  
+  responsavelId String
+  responsavel   Usuario           @relation(fields: [responsavelId], references: [id])
+
+  departamentoId Int
+  departamento   Departamento           @relation(fields: [departamentoId], references: [id])
+
+  plano      String          // Ex: "Enterprise Plan 2024"
+  preco      Decimal         @db.Decimal(10, 2) 
+  moeda      Moeda           @default(BRL)
+  
+  // Controle de Tempo
+  startDate     DateTime
+  endDate       DateTime?          // Pode ser null se for recorrente eterna
+  nextBilling   DateTime           // Data do próximo pagamento (Cron Job)
+  
+  // Estado e Controle
+  status       AssinaturaStatus   @default(ATIVO)
+  ativo        Boolean            @default(true) // Soft Delete flag 
+  
+  // Auditoria
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  deletedAt     DateTime?
+  version       Int                @default(1) // (Concurrency Control)
+
+  @@index([status])        
+  @@index([nextBilling])    
+  @@index([departamentoId])   
+  @@index([deletedAt])     
+
+  @@map("assinaturas")
+}
+
+model Log {
+  id          String   @id @default(uuid())
+  
+  acao          String   // "CREATE", "UPDATE_PRICE", "CANCEL"
+  entidade      String   // "Assinatura", "Usuario"
+  entidadeId    String   // ID do que foi alterado
+  
+  oldValues   Json?    // O que era antes (Snapshot)
+  newValues   Json?    // O que virou
+  
+  usuarioId   String
+  user        Usuario     @relation(fields: [usuarioId], references: [id])
+  
+  createdAt   DateTime @default(now())
+
+  @@index([entidadeId, createdAt(sort: Desc)])
+
+  @@map("logs")
+}
