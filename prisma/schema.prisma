@@ -48,6 +48,7 @@ model Usuario {
 
   logs     Log[]     // Logs gerados por este usuário
   assinaturas Assinatura[] // Assinaturas que este usuário é RESPONSÁVEL
+  logsAcesso LogAcesso[] // Logs de Login
 
   @@map("usuarios")
 }
@@ -133,4 +134,31 @@ model Log {
   @@index([entidadeId, createdAt(sort: Desc)])
 
   @@map("logs")
+}
+
+model LogAcesso {
+  id        String   @id @default(uuid())
+  
+  userId    String?  // Opcional, pois pode ser uma tentativa de email que nem existe
+  user      Usuario? @relation(fields: [userId], references: [id])
+  
+  email     String  
+  ip        String?
+  userAgent String?  // Navegador/Dispositivo
+  
+  status    AcessoStatus 
+  motivo    String?      
+  
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([ip])
+  @@index([createdAt]) // expurgar logs antigos 
+
+  @@map("logs_acesso")
+}
+
+enum AcessoStatus {
+  SUCCESS
+  FAILURE
 }

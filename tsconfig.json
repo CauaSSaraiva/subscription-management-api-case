@@ -12,7 +12,7 @@
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     // "ignoreDeprecations": "6.0",
-    "types": [],
+    // "types": [],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],

@@ -1,11 +1,17 @@
 import express from "express";
 import cors from "cors";
 
+import { usuarioRoutes } from "./routes/usuario.routes";
+import { authRoutes } from "./routes/auth.routes";
+
 const app = express();
 const port = 3004;
 
 app.use(express.json());
 app.use(cors());
+
+app.use("/usuarios", usuarioRoutes)
+app.use("/login", authRoutes)
 
 
 app.get("/", (req, res) => {
