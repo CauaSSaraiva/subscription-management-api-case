@@ -1,18 +1,19 @@
 import { type Request, type Response } from "express";
-import { createUsuarioSchema, updateUsuarioSchema } from "../dtos/usuario.dto";
-import { UsuarioService } from "../services/usuario.service";
+import { createServicoSchema } from "../dtos/servico.dto";
+import { ServicoService } from "../services/servico.service";
 import { idParamSchema } from "../dtos/params.dto";
+import { updateServicoSchema } from "../dtos/servico.dto";
 import z from "zod";
 
-export class UsuarioController {
-  private usuarioService: UsuarioService;
+export class ServicoController {
+  private servicoService: ServicoService;
 
   constructor() {
-    this.usuarioService = new UsuarioService();
+    this.servicoService = new ServicoService();
   }
 
   criar = async (req: Request, res: Response) => {
-    const validacao = createUsuarioSchema.safeParse(req.body);
+    const validacao = createServicoSchema.safeParse(req.body);
 
     if (!validacao.success) {
       return res.status(400).json({
@@ -21,7 +22,7 @@ export class UsuarioController {
       });
     }
 
-    const resultado = await this.usuarioService.criar(validacao.data);
+    const resultado = await this.servicoService.criar(validacao.data);
 
     if (!resultado.ok) {
       return res.status(resultado.statusCode).json({
@@ -30,13 +31,13 @@ export class UsuarioController {
     }
 
     return res.status(201).json({
-      message: "Usuário criado com sucesso!",
+      message: "Serviço criado com sucesso!",
       data: resultado.data,
     });
   };
 
   listar = async (req: Request, res: Response) => {
-    const resultado = await this.usuarioService.listar();
+    const resultado = await this.servicoService.listar();
 
     if (!resultado.ok) {
       return res.status(resultado.statusCode).json({
@@ -44,8 +45,8 @@ export class UsuarioController {
       });
     }
 
-    return res.status(200).json({
-      message: "Usuários listados com sucesso",
+    return res.status(201).json({
+      message: "Serviços listados com sucesso!",
       data: resultado.data,
     });
   };
@@ -55,14 +56,14 @@ export class UsuarioController {
 
     if (!validacaoParams.success) {
       return res.status(400).json({
-        message: "ID de usuário inválido",
+        message: "ID de serviço inválido",
         errors: z.treeifyError(validacaoParams.error),
       });
     }
 
     const id = validacaoParams.data.id;
 
-    const validacaoBody = updateUsuarioSchema.safeParse(req.body);
+    const validacaoBody = updateServicoSchema.safeParse(req.body);
 
     if (!validacaoBody.success) {
       return res.status(400).json({
@@ -70,8 +71,11 @@ export class UsuarioController {
         errors: z.treeifyError(validacaoBody.error),
       });
     }
+    const resultado = await this.servicoService.atualizar(
+      validacaoBody.data,
+      id,
+    );
 
-    const resultado = await this.usuarioService.atualizar(validacaoBody.data, id);
     if (!resultado.ok) {
       return res.status(resultado.statusCode).json({
         message: resultado.error.message,
@@ -79,7 +83,7 @@ export class UsuarioController {
     }
 
     return res.status(200).json({
-      message: "Usuário atualizado com sucesso!",
+      message: "Serviço atualizado com sucesso!",
       data: resultado.data,
     });
   };
@@ -89,25 +93,26 @@ export class UsuarioController {
 
     if (!validacaoParams.success) {
       return res.status(400).json({
-        message: "ID de usuário inválido",
+        message: "ID de serviço inválido",
         errors: z.treeifyError(validacaoParams.error),
       });
     }
 
     const id = validacaoParams.data.id;
 
-    const resultado = await this.usuarioService.deletar(id);
+    const resultado = await this.servicoService.deletar(id);
 
+    
     if (!resultado.ok) {
       return res.status(resultado.statusCode).json({
         message: resultado.error.message,
       });
     }
-    
+
     // 200 no lugar de 204 para devolver json e manter o padrão/contrato
     return res.status(200).json({
-      message: "Usuário removido com sucesso!",
-      data: null
+      message: "Serviço removido com sucesso!",
+      data: null,
     });
   };
 }

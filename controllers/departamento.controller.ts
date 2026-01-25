@@ -1,18 +1,19 @@
 import { type Request, type Response } from "express";
-import { createUsuarioSchema, updateUsuarioSchema } from "../dtos/usuario.dto";
-import { UsuarioService } from "../services/usuario.service";
-import { idParamSchema } from "../dtos/params.dto";
+import { idParamNumberSchema } from "../dtos/params.dto";
+import { DepartamentoService } from "../services/departamento.service";
+import { createDepartamentoSchema } from "../dtos/departamento.dto";
+
 import z from "zod";
 
-export class UsuarioController {
-  private usuarioService: UsuarioService;
+export class DepartamentoController {
+  private departamentoService: DepartamentoService;
 
   constructor() {
-    this.usuarioService = new UsuarioService();
+    this.departamentoService = new DepartamentoService();
   }
 
   criar = async (req: Request, res: Response) => {
-    const validacao = createUsuarioSchema.safeParse(req.body);
+    const validacao = createDepartamentoSchema.safeParse(req.body);
 
     if (!validacao.success) {
       return res.status(400).json({
@@ -21,7 +22,7 @@ export class UsuarioController {
       });
     }
 
-    const resultado = await this.usuarioService.criar(validacao.data);
+    const resultado = await this.departamentoService.criar(validacao.data);
 
     if (!resultado.ok) {
       return res.status(resultado.statusCode).json({
@@ -30,13 +31,13 @@ export class UsuarioController {
     }
 
     return res.status(201).json({
-      message: "Usuário criado com sucesso!",
+      message: "Departamento criado com sucesso!",
       data: resultado.data,
     });
   };
 
   listar = async (req: Request, res: Response) => {
-    const resultado = await this.usuarioService.listar();
+    const resultado = await this.departamentoService.listar();
 
     if (!resultado.ok) {
       return res.status(resultado.statusCode).json({
@@ -44,25 +45,26 @@ export class UsuarioController {
       });
     }
 
-    return res.status(200).json({
-      message: "Usuários listados com sucesso",
+    return res.status(201).json({
+      message: "Departamentos listados com sucesso!",
       data: resultado.data,
     });
   };
 
   atualizar = async (req: Request, res: Response) => {
-    const validacaoParams = idParamSchema.safeParse(req.params);
+    console.log(typeof req.params.id)
+    const validacaoParams = idParamNumberSchema.safeParse(req.params);
 
     if (!validacaoParams.success) {
       return res.status(400).json({
-        message: "ID de usuário inválido",
+        message: "ID de departamento inválido",
         errors: z.treeifyError(validacaoParams.error),
       });
     }
 
     const id = validacaoParams.data.id;
 
-    const validacaoBody = updateUsuarioSchema.safeParse(req.body);
+    const validacaoBody = createDepartamentoSchema.safeParse(req.body);
 
     if (!validacaoBody.success) {
       return res.status(400).json({
@@ -70,8 +72,11 @@ export class UsuarioController {
         errors: z.treeifyError(validacaoBody.error),
       });
     }
+    const resultado = await this.departamentoService.atualizar(
+      validacaoBody.data,
+      id,
+    );
 
-    const resultado = await this.usuarioService.atualizar(validacaoBody.data, id);
     if (!resultado.ok) {
       return res.status(resultado.statusCode).json({
         message: resultado.error.message,
@@ -79,35 +84,36 @@ export class UsuarioController {
     }
 
     return res.status(200).json({
-      message: "Usuário atualizado com sucesso!",
+      message: "Departamento atualizado com sucesso!",
       data: resultado.data,
     });
   };
 
   deletar = async (req: Request, res: Response) => {
-    const validacaoParams = idParamSchema.safeParse(req.params);
+    const validacaoParams = idParamNumberSchema.safeParse(req.params);
 
     if (!validacaoParams.success) {
       return res.status(400).json({
-        message: "ID de usuário inválido",
+        message: "ID de departamento inválido",
         errors: z.treeifyError(validacaoParams.error),
       });
     }
 
     const id = validacaoParams.data.id;
 
-    const resultado = await this.usuarioService.deletar(id);
+    const resultado = await this.departamentoService.deletar(id);
 
+    
     if (!resultado.ok) {
       return res.status(resultado.statusCode).json({
         message: resultado.error.message,
       });
     }
-    
+
     // 200 no lugar de 204 para devolver json e manter o padrão/contrato
     return res.status(200).json({
-      message: "Usuário removido com sucesso!",
-      data: null
+      message: "Departamento removido com sucesso!",
+      data: null,
     });
   };
 }

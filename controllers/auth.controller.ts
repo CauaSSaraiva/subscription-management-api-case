@@ -1,6 +1,8 @@
 import { type Request, type Response } from "express";
 import { loginSchema } from "../dtos/auth.dto";
 import { AuthService } from "../services/auth.service";
+import z from "zod";
+
 
 
 
@@ -20,7 +22,7 @@ export class AuthController {
         if (!validation.success) {
           return res.status(400).json({
             message: "Dados inválidos",
-            errors: validation.error,
+            errors: z.treeifyError(validation.error),
           });
         }
 

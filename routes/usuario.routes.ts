@@ -11,7 +11,28 @@ usuarioRoutes.post(
   "/",
   verificarAutenticacao,
   Permissao([Role.ADMIN]),
-  usuarioController.criar,
+  usuarioController.criar
 );
+
+usuarioRoutes.get(
+  "/",
+  verificarAutenticacao,
+  Permissao([Role.ADMIN]),
+  usuarioController.listar
+);
+
+usuarioRoutes.patch(
+  "/:id",
+  verificarAutenticacao,
+  Permissao([Role.ADMIN]),
+  usuarioController.atualizar
+)
+
+usuarioRoutes.delete(
+  "/:id",
+  verificarAutenticacao,
+  Permissao([Role.ADMIN]),
+  usuarioController.deletar
+)
 
 export { usuarioRoutes };

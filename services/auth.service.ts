@@ -1,5 +1,5 @@
 import { prisma } from "../prisma";
-import { hash, compare } from "bcrypt";
+import { compare } from "bcrypt";
 import { type LoginDTO } from "../dtos/auth.dto";
 import jwt from "jsonwebtoken";
 import { type ServiceResult } from "../utils/service-result";
@@ -81,7 +81,12 @@ export class AuthService {
       }
 
       if (!process.env.JWT_SECRET) {
-        throw new Error("JWT_SECRET não configurado");
+        console.error("JWT_SECRET não configurado");
+        return {
+          ok: false,
+          error: { message: "Internal Server Error" },
+          statusCode: 500,
+        };
       }
 
       const token = sign(
