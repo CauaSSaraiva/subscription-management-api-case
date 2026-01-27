@@ -111,6 +111,8 @@ model Assinatura {
   @@index([status])        
   @@index([nextBilling])    
   @@index([departamentoId])   
+  @@index([servicoId])   
+  @@index([responsavelId])   
   @@index([deletedAt])     
 
   @@map("assinaturas")

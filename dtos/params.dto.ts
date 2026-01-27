@@ -5,5 +5,5 @@ export const idParamSchema = z.object({
 });
 
 export const idParamNumberSchema = z.object({
-  id: z.coerce.number("Formato de ID number inválido")
+  id: z.coerce.number("Formato de ID number inválido").int("ID deve ser inteiro").positive("ID inválido")
 })
