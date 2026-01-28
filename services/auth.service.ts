@@ -72,7 +72,7 @@ export class AuthService {
         };
       }
 
-      if (!user.ativo) {
+      if (user.deletedAt) {
         return {
           ok: false,
           error: { message: "Usuário desativado." },

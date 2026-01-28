@@ -59,6 +59,7 @@ export class AssinaturaController {
     }
 
     return res.status(200).json({
+      message: "Assinaturas listadas com sucesso!",
       data: resultado.data,
       meta: resultado.meta,
     });

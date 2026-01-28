@@ -458,7 +458,6 @@ export class AssinaturaService {
           id: assinaturaId,
         },
         data: {
-          ativo: false,
           deletedAt: new Date(),
         },
       });

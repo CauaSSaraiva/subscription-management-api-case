@@ -15,7 +15,6 @@ interface UsuarioResponse  {
 interface UsuarioAdminResponse extends UsuarioResponse {
   deletedAt?: Date | null;
   createdAt: Date;
-  ativo: boolean;
 };
 
 
@@ -72,7 +71,7 @@ export class UsuarioService {
           role: true,
         },
         where: {
-          ativo: true,
+          deletedAt: null,
         },
       });
       return { ok: true, data: usuarios };
@@ -116,7 +115,7 @@ export class UsuarioService {
           email: true, 
           role: true, 
           createdAt: true,
-          ativo: true
+          deletedAt: true
         }
       })
 
@@ -152,7 +151,6 @@ export class UsuarioService {
           id: usuarioId,
         },
         data: {
-          ativo: false,
           deletedAt: new Date()
         }
       });

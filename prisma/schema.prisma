@@ -41,8 +41,6 @@ model Usuario {
   senha     String   // Hash 
   role      Role     @default(VIEWER) 
 
-  ativo        Boolean            @default(true) // Soft Delete flag 
-  
   createdAt DateTime @default(now())
   deletedAt DateTime?
 
@@ -100,12 +98,11 @@ model Assinatura {
   
   // Estado e Controle
   status       AssinaturaStatus   @default(ATIVO)
-  ativo        Boolean            @default(true) // Soft Delete flag 
+  deletedAt     DateTime?
   
   // Auditoria
   createdAt     DateTime           @default(now())
   updatedAt     DateTime           @updatedAt
-  deletedAt     DateTime?
   version       Int                @default(1) // (Concurrency Control)
 
   @@index([status])        
