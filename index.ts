@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import { usuarioRoutes } from "./routes/usuario.routes";
 import { authRoutes } from "./routes/auth.routes";
@@ -12,10 +13,16 @@ const app = express();
 const port = 3004;
 
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser())
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true
+  }),
+);
 
 app.use("/usuarios", usuarioRoutes)
-app.use("/login", authRoutes)
+app.use("/auth", authRoutes)
 app.use("/servicos", servicoRoutes)
 app.use("/departamentos", departamentoRoutes)
 app.use("/assinaturas", assinaturaRoutes)

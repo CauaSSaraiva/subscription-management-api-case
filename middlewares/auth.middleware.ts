@@ -8,16 +8,11 @@ export function verificarAutenticacao(
   res: Response,
   next: NextFunction,
 ) {
-  const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
-    return res.status(401).json({ error: "Token não fornecido" });
-  }
-
-  const [, token] = authHeader.split(" ");
+  const token = req.cookies.token;
 
   if (!token) {
-    return res.status(401).json({ error: "Formato inválido de token" });
+    return res.status(401).json({ error: "Token não fornecido ou inválido" });
   }
 
   try {
