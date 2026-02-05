@@ -45,6 +45,23 @@ interface AssinaturaDetalhesResponse extends AssinaturaResponse {
   };
 }
 
+interface MaisCarosResponse {
+  id: string;
+  servico: string;
+  linkServico: string | null;
+  plano: string;
+  valor: string;
+}
+
+interface ProximosVencimentosResponse {
+  id: string;
+  servico: string;
+  linkServico: string | null;
+  valor: string;
+  vencimento: Date;
+  diasRestantes: number;
+}
+
 export class AssinaturaService {
   async criar(
     data: CreateAssinaturaDTO,
@@ -467,7 +484,7 @@ export class AssinaturaService {
         acao: LogAction.DELETE,
         entidade: "Assinatura",
         entidadeId: assinaturaId,
-        oldValues: assinaturaExiste
+        oldValues: assinaturaExiste,
       });
 
       return { ok: true, data: null };
@@ -478,5 +495,139 @@ export class AssinaturaService {
         statusCode: 500,
       };
     }
+  }
+
+  async buscarKpi() {
+    try {
+      const kpi = await prisma.assinatura.aggregate({
+        where: {
+          deletedAt: null,
+          status: AssinaturaStatus.ATIVO,
+        },
+        _avg: { preco: true },
+        _count: { id: true },
+        _sum: { preco: true },
+      });
+
+      return { ok: true, data: kpi };
+    } catch (error) {
+      return {
+        ok: false,
+        error: { message: "Erro ao buscar kpi" },
+        statusCode: 500,
+      };
+    }
+  }
+
+  async buscarMaisCaros(): Promise<ServiceResult<MaisCarosResponse[]>> {
+    try {
+      const caros = await prisma.assinatura.findMany({
+        select: {
+          id: true,
+          plano: true,
+          preco: true,
+          startDate: true,
+          endDate: true,
+          nextBilling: true,
+          service: {
+            select: {
+              nome: true,
+              website: true,
+            },
+          },
+        },
+        where: {
+          deletedAt: null,
+          status: AssinaturaStatus.ATIVO,
+        },
+        orderBy: {
+          preco: "desc",
+        },
+        take: 5,
+      });
+
+      const resultado = caros.map((item) => ({
+        id: item.id,
+        servico: item.service.nome,
+        linkServico: item.service.website,
+        plano: item.plano,
+        valor: item.preco.toString(),
+      }));
+
+      return { ok: true, data: resultado };
+    } catch (error) {
+      return {
+        ok: false,
+        error: { message: "Erro ao buscar Assinaturas mais caras" },
+        statusCode: 500,
+      };
+    }
+  }
+
+  async buscarProximosVencimentos(): Promise<
+    ServiceResult<ProximosVencimentosResponse[]>
+  > {
+    try {
+      const hoje = new Date();
+      const dataInicio = DateUtils.inicioDiaUTC(hoje);
+
+      const dataDaqui30Dias = new Date(hoje);
+      dataDaqui30Dias.setDate(hoje.getDate() + 30);
+
+      const dataFim = DateUtils.fimDiaUTC(dataDaqui30Dias);
+
+      const vencimentos = await prisma.assinatura.findMany({
+        where: {
+          status: AssinaturaStatus.ATIVO,
+          deletedAt: null,
+          nextBilling: {
+            gte: dataInicio, // Maior ou igual ao início de hoje
+            lte: dataFim, // Menor ou igual ao fim do dia 30
+          },
+        },
+        orderBy: {
+          nextBilling: "asc",
+        },
+        take: 10,
+        select: {
+          id: true,
+          preco: true,
+          nextBilling: true,
+          service: {
+            select: {
+              nome: true,
+              website: true,
+            },
+          },
+        },
+      });
+
+      const resultado = vencimentos.map((item) => ({
+        id: item.id,
+        servico: item.service.nome,
+        linkServico: item.service.website,
+        valor: item.preco.toString(),
+        vencimento: item.nextBilling,
+        diasRestantes: this.calcularDiasRestantes(item.nextBilling),
+      }));
+
+      return { ok: true, data: resultado };
+    } catch (error) {
+      return {
+        ok: false,
+        error: {
+          message:
+            "Erro ao buscar próximos vencimentos/cobranças de assinaturas",
+        },
+        statusCode: 500,
+      };
+    }
+  }
+
+  // helper pro front
+  private calcularDiasRestantes(dataAlvo: Date): number {
+    const agoraUtc = DateUtils.inicioDiaUTC(new Date());
+    const diferencaMs = dataAlvo.getTime() - agoraUtc.getTime();
+    return Math.ceil(diferencaMs / (1000 * 60 * 60 * 24));
   }
 }

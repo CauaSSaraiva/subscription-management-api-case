@@ -20,6 +20,12 @@ departamentoRoutes.get(
 //   Permissao([Role.ADMIN, Role.MANAGER]),
   departamentoController.listar
 );
+departamentoRoutes.get(
+  "/gastos",
+  verificarAutenticacao,
+//   Permissao([Role.ADMIN, Role.MANAGER]),
+  departamentoController.gastoPorDepartamento
+);
 
 departamentoRoutes.patch(
   "/:id",

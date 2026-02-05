@@ -2,6 +2,7 @@ import { type Request, type Response } from "express";
 import { idParamNumberSchema } from "../dtos/params.dto";
 import { DepartamentoService } from "../services/departamento.service";
 import { createDepartamentoSchema } from "../dtos/departamento.dto";
+import { DashboardService } from "../services/dashboard.service";
 
 import z from "zod";
 
@@ -47,6 +48,21 @@ export class DepartamentoController {
 
     return res.status(201).json({
       message: "Departamentos listados com sucesso!",
+      data: resultado.data,
+    });
+  };
+
+  gastoPorDepartamento = async (req: Request, res: Response) => {
+    const resultado = await this.departamentoService.gastoPorDepartamento();
+
+    if (!resultado.ok) {
+      return res.status(resultado.statusCode).json({
+        message: resultado.error.message,
+      });
+    }
+
+    return res.status(201).json({
+      message: "Gastos por departamento listados com sucesso!",
       data: resultado.data,
     });
   };

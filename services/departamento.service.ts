@@ -1,15 +1,23 @@
 import { prisma } from "../prisma";
 import { type ServiceResult } from "../utils/service-result";
 import { type CreateDepartamentoDTO } from "../dtos/departamento.dto";
-import { Prisma } from "../generated/prisma/client";
+import { AssinaturaStatus, Prisma } from "../generated/prisma/client";
 
 interface DepartamentoResponse {
   id: number;
   descricao: string;
 }
 
+interface ChartsResponse {
+  departamentoId: number;
+  descricao: string;
+  total: string;
+}
+
 export class DepartamentoService {
-  async criar(data: CreateDepartamentoDTO): Promise<ServiceResult<DepartamentoResponse>> {
+  async criar(
+    data: CreateDepartamentoDTO,
+  ): Promise<ServiceResult<DepartamentoResponse>> {
     try {
       const departamento = await prisma.departamento.create({
         data: {
@@ -17,7 +25,7 @@ export class DepartamentoService {
         },
         select: {
           id: true,
-          descricao: true
+          descricao: true,
         },
       });
 
@@ -52,7 +60,12 @@ export class DepartamentoService {
         },
         select: {
           id: true,
-          descricao: true
+          descricao: true,
+          _count: {
+            select: {
+              assinaturas: true,
+            },
+          },
         },
       });
 
@@ -89,10 +102,10 @@ export class DepartamentoService {
         where: {
           id: departamentoId,
         },
-        data: {descricao: data.descricao},
+        data: { descricao: data.descricao },
         select: {
           id: true,
-          descricao: true
+          descricao: true,
         },
       });
 
@@ -122,6 +135,22 @@ export class DepartamentoService {
         };
       }
 
+      const qtdAssinaturas = await prisma.assinatura.count({
+        where: {
+          departamentoId: departamentoId,
+          deletedAt: null,
+          status:'ATIVO',
+        },
+      });
+
+      if (qtdAssinaturas > 0) {
+        return {
+          ok: false,
+          error: { message: "Não é possível deletar departamento com assinaturas ativas" },
+          statusCode: 500,
+        };
+      }
+
       await prisma.departamento.update({
         where: {
           id: departamentoId,
@@ -136,6 +165,57 @@ export class DepartamentoService {
       return {
         ok: false,
         error: { message: "Erro ao deletar departamento" },
+        statusCode: 500,
+      };
+    }
+  }
+
+  async gastoPorDepartamento(): Promise<ServiceResult<ChartsResponse[]>> {
+    try {
+      const agrupado = await prisma.assinatura.groupBy({
+        by: ["departamentoId"],
+        where: {
+          deletedAt: null,
+          status: AssinaturaStatus.ATIVO,
+        },
+        _sum: { preco: true },
+      });
+
+      // evitando n+1  com agrupamento de consultas (batching)
+      const departamentosIds = agrupado.map((item) => item.departamentoId);
+
+      const departamentos = await prisma.departamento.findMany({
+        where: {
+          id: { in: departamentosIds },
+        },
+        select: {
+          id: true,
+          descricao: true,
+        },
+      });
+
+      const departamentoMap = new Map<number, string>();
+
+      for (const d of departamentos) {
+        departamentoMap.set(d.id, d.descricao);
+      }
+
+      const resultado = agrupado.map((item) => ({
+        departamentoId: item.departamentoId,
+        descricao:
+          departamentoMap.get(item.departamentoId) ??
+          "Departamento Desconhecido",
+        total: item._sum.preco?.toString() ?? "0",
+      }));
+
+      return {
+        ok: true,
+        data: resultado,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: { message: "Erro ao carregar gastos por departamento" },
         statusCode: 500,
       };
     }

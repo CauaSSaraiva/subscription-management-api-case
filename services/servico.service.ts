@@ -60,6 +60,11 @@ export class ServicoService {
           id: true,
           nome: true,
           website: true,
+          _count: {
+            select: {
+              assinaturas: true
+            }
+          }
         },
       });
 
@@ -132,6 +137,25 @@ export class ServicoService {
           ok: false,
           error: { message: "Serviço não encontrado" },
           statusCode: 404,
+        };
+      }
+
+      const qtdAssinaturas = await prisma.assinatura.count({
+        where: {
+          servicoId: servicoId,
+          deletedAt: null,
+          status: 'ATIVO',
+        },
+      });
+
+      if (qtdAssinaturas > 0) {
+        return {
+          ok: false,
+          error: {
+            message:
+              "Não é possível deletar serviço com assinaturas ativas",
+          },
+          statusCode: 500,
         };
       }
 
