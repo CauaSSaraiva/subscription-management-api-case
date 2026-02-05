@@ -44,6 +44,8 @@ model Usuario {
   createdAt DateTime @default(now())
   deletedAt DateTime?
 
+  precisaTrocarSenha Boolean @default(true)
+
   logs     Log[]     // Logs gerados por este usuário
   assinaturas Assinatura[] // Assinaturas que este usuário é RESPONSÁVEL
   logsAcesso LogAcesso[] // Logs de Login

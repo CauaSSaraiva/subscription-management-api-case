@@ -1,5 +1,5 @@
 import { type Request, type Response } from "express";
-import { createUsuarioSchema, updateUsuarioSchema } from "../dtos/usuario.dto";
+import { createUsuarioSchema, updateUsuarioSchema, updateSenhaUsuarioSchema } from "../dtos/usuario.dto";
 import { UsuarioService } from "../services/usuario.service";
 import { idParamSchema } from "../dtos/params.dto";
 import z from "zod";
@@ -50,6 +50,21 @@ export class UsuarioController {
     });
   };
 
+  listarParaSelect = async (req: Request, res: Response) => {
+    const resultado = await this.usuarioService.listarParaSelect();
+
+    if (!resultado.ok) {
+      return res.status(resultado.statusCode).json({
+        message: resultado.error.message,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Usuários listados com sucesso",
+      data: resultado.data,
+    });
+  };
+
   atualizar = async (req: Request, res: Response) => {
     const validacaoParams = idParamSchema.safeParse(req.params);
 
@@ -72,6 +87,39 @@ export class UsuarioController {
     }
 
     const resultado = await this.usuarioService.atualizar(validacaoBody.data, id);
+    if (!resultado.ok) {
+      return res.status(resultado.statusCode).json({
+        message: resultado.error.message,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Usuário atualizado com sucesso!",
+      data: resultado.data,
+    });
+  };
+  atualizarSenha = async (req: Request, res: Response) => {
+    const validacaoParams = idParamSchema.safeParse(req.params);
+
+    if (!validacaoParams.success) {
+      return res.status(400).json({
+        message: "ID de usuário inválido",
+        errors: z.treeifyError(validacaoParams.error),
+      });
+    }
+
+    const id = validacaoParams.data.id;
+
+    const validacaoBody = updateSenhaUsuarioSchema.safeParse(req.body);
+
+    if (!validacaoBody.success) {
+      return res.status(400).json({
+        message: "Dados de atualização inválidos",
+        errors: z.treeifyError(validacaoBody.error),
+      });
+    }
+
+    const resultado = await this.usuarioService.atualizarSenha(validacaoBody.data, id);
     if (!resultado.ok) {
       return res.status(resultado.statusCode).json({
         message: resultado.error.message,

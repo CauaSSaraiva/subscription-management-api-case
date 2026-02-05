@@ -16,6 +16,7 @@ async function main() {
       email: "admin@empresa.com",
       senha: adminPassword,
       role: Role.ADMIN,
+      precisaTrocarSenha: false
     },
   });
 

@@ -20,12 +20,25 @@ usuarioRoutes.get(
   Permissao([Role.ADMIN]),
   usuarioController.listar
 );
+usuarioRoutes.get(
+  "/opcoes",
+  verificarAutenticacao,
+  // Permissao([Role.ADMIN]),
+  usuarioController.listar
+);
 
 usuarioRoutes.patch(
   "/:id",
   verificarAutenticacao,
   Permissao([Role.ADMIN]),
   usuarioController.atualizar
+)
+
+usuarioRoutes.patch(
+  "/:id/trocar-senha",
+  verificarAutenticacao,
+  // Permissao([Role.ADMIN]),
+  usuarioController.atualizarSenha
 )
 
 usuarioRoutes.delete(
