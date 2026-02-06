@@ -16,6 +16,11 @@ export class AssinaturaController {
   }
 
   criar = async (req: Request, res: Response) => {
+    // em teoria nunca acontece, mas necessário para typescript pois não reconhece middleware
+    if (!req.user) {
+      return res.status(401).json({ error: "Não autenticado" });
+    }
+
     const validacao = createAssinaturaSchema.safeParse(req.body);
 
     if (!validacao.success) {
@@ -93,6 +98,11 @@ export class AssinaturaController {
 
 
     atualizar = async (req: Request, res: Response) => {
+      // em teoria nunca acontece, mas necessário para typescript pois não reconhece middleware
+      if (!req.user) {
+        return res.status(401).json({ error: "Não autenticado" });
+      }
+
       const validacaoParams = idParamSchema.safeParse(req.params);
 
       if (!validacaoParams.success) {
@@ -117,7 +127,7 @@ export class AssinaturaController {
       const resultado = await this.assinaturaService.atualizar(
         validacaoBody.data,
         id,
-        usuarioLogadoId
+        usuarioLogadoId,
       );
 
       if (!resultado.ok) {
@@ -130,9 +140,14 @@ export class AssinaturaController {
         message: "Serviço atualizado com sucesso!",
         data: resultado.data,
       });
-    };
+    };;
 
     deletar = async (req: Request, res: Response) => {
+      // em teoria nunca acontece, mas necessário para typescript pois não reconhece middleware
+      if (!req.user) {
+        return res.status(401).json({ error: "Não autenticado" });
+      }
+
       const validacaoParams = idParamSchema.safeParse(req.params);
 
       if (!validacaoParams.success) {
@@ -145,7 +160,10 @@ export class AssinaturaController {
       const id = validacaoParams.data.id;
 
       const usuarioLogadoId = req.user.sub;
-      const resultado = await this.assinaturaService.deletar(id, usuarioLogadoId);
+      const resultado = await this.assinaturaService.deletar(
+        id,
+        usuarioLogadoId,
+      );
 
       if (!resultado.ok) {
         return res.status(resultado.statusCode).json({
@@ -158,5 +176,5 @@ export class AssinaturaController {
         message: "Assinatura removida com sucesso!",
         data: null,
       });
-    };
+    };;
 }

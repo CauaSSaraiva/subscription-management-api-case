@@ -10,7 +10,7 @@ import { assinaturaRoutes } from "./routes/assinatura.routes";
 import { dashboardRoutes } from "./routes/dashboard.routes";
 
 const app = express();
-const port = 3004;
+const port = process.env.PORT || 3004;
 
 app.use(express.json());
 app.use(cookieParser())

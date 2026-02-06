@@ -43,8 +43,8 @@ export class AuthController {
 
     res.cookie("token", resultado.data.token, {
       httpOnly: true,
-      secure: emProducao, // HTTPS em produção
-      sameSite: "strict",
+      secure: emProducao, // HTTPS em produção/deploy
+      sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000, // 1 dia
       path: "/",
     });
