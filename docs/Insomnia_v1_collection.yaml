@@ -1,0 +1,742 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: "[Subscription-Management] REST-API"
+meta:
+  id: wrk_8cd9178f0ace413191af55a49485f7e3
+  created: 1769202482138
+  modified: 1769202482138
+  description: ""
+collection:
+  - name: Auth & Setup
+    meta:
+      id: fld_bb7a64b8857048a6ae417ef7a6198493
+      created: 1769202517587
+      modified: 1769202517587
+      sortKey: -1769202517587
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/auth"
+        name: Login
+        meta:
+          id: req_810920fd680b4041a524b244d239d248
+          created: 1769202520621
+          modified: 1770663303990
+          isPrivate: false
+          description: ""
+          sortKey: -1769813626775
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"email": "admin@empresa.com",
+            	"senha": "admin123"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/auth/logout"
+        name: Logout
+        meta:
+          id: req_0b825a5ccd9d4e3fa6643402e432d429
+          created: 1769813626475
+          modified: 1770663396243
+          isPrivate: false
+          description: ""
+          sortKey: -1769813626675
+        method: POST
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/auth/me"
+        name: /me (dados perfil)
+        meta:
+          id: req_d6f18e74210943e89f4e7acb43648d80
+          created: 1769817706025
+          modified: 1770663376869
+          isPrivate: false
+          description: ""
+          sortKey: -1769813626725
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Gerenciar Usuarios (ADMIN)
+    meta:
+      id: fld_e50775e5cb5341bf82c89df8547ffd0d
+      created: 1769202796690
+      modified: 1770663603972
+      sortKey: -1769202796690
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/usuarios"
+        name: Criar User
+        meta:
+          id: req_109b779aa89a45a682d337a69d9ef337
+          created: 1769202800486
+          modified: 1770745302033
+          isPrivate: false
+          description: ""
+          sortKey: -1769202800486
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"nome": "testeInsomnia",
+            	"email": "teste2@gmail.com",
+            	"senha": "teste1234",
+            	"role": "VIEWER"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/usuarios"
+        name: Listar
+        meta:
+          id: req_9a0177a6435c4629b91ad5eadbf78cd6
+          created: 1769305616518
+          modified: 1770663414860
+          isPrivate: false
+          description: ""
+          sortKey: -1769305616518
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/usuarios/fa8be890-8757-4aa8-8fdf-711b74ab95d0"
+        name: Atualizar
+        meta:
+          id: req_cde9f1f89b634e93b6b8e3f601c73829
+          created: 1769368086012
+          modified: 1770745320562
+          isPrivate: false
+          description: ""
+          sortKey: -1769368086012
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"nome": "testeInsomniaAtt"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Servicos
+    meta:
+      id: fld_3886ba2d604d4487809a9c99838e9599
+      created: 1769373488536
+      modified: 1769373492092
+      sortKey: -1769373488536
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/servicos"
+        name: Listar
+        meta:
+          id: req_074a832bab5a47cdaed1483bb3af5ad1
+          created: 1769373492995
+          modified: 1770663456017
+          isPrivate: false
+          description: ""
+          sortKey: -1769373492995
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/servicos"
+        name: Criar
+        meta:
+          id: req_7ed0229c0d1b449f9f2129668487bd7f
+          created: 1769373586904
+          modified: 1770745452364
+          isPrivate: false
+          description: ""
+          sortKey: -1769370789503.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"nome": "Claude"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/servicos/10d8b2ed-0453-4542-914d-0130cab36b72"
+        name: Atualizar
+        meta:
+          id: req_b9218b38cb7a4e0fa5266ec324b27b5e
+          created: 1769373706618
+          modified: 1770745511397
+          isPrivate: false
+          description: ""
+          sortKey: -1769369437757.75
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"nome": "MongoDB Atlas"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/servicos/10d8b2ed-0453-4542-914d-0130cab36b72"
+        name: Deletar (soft-delete)
+        meta:
+          id: req_aa976ffada1b4593a052ebaef2083b9d
+          created: 1769374111213
+          modified: 1770745529914
+          isPrivate: false
+          description: ""
+          sortKey: -1769369437657.75
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Departamentos
+    meta:
+      id: fld_b38ef213f0f048f091f0a2929580d7ee
+      created: 1769377463201
+      modified: 1769377463201
+      sortKey: -1769377463201
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/departamentos"
+        name: Listar
+        meta:
+          id: req_aa3c205537204bf9b1ab8c09a2568a84
+          created: 1769377468965
+          modified: 1770663479296
+          isPrivate: false
+          description: ""
+          sortKey: -1769377471693
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/departamentos"
+        name: Criar
+        meta:
+          id: req_610d3ab39a2d45c899d9fef79a65fd1e
+          created: 1769377499764
+          modified: 1770745763583
+          isPrivate: false
+          description: ""
+          sortKey: -1769377471793
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"descricao": "Inovação & IA"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/departamentos/9"
+        name: Atualizar
+        meta:
+          id: req_899e2b8022be4b25b83c09e7165d78ed
+          created: 1769377544630
+          modified: 1770745799814
+          isPrivate: false
+          description: ""
+          sortKey: -1769377471893
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"descricao": "Inovação & IA"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/departamentos/9"
+        name: Deletar (soft-delete)
+        meta:
+          id: req_a88dd6a1d2394403babe8c1d547b697b
+          created: 1769377929308
+          modified: 1770745784073
+          isPrivate: false
+          description: ""
+          sortKey: -1769377471593
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/departamentos/gastos"
+        name: ListarGastos
+        meta:
+          id: req_7389340f15be444cab783089cfc0b628
+          created: 1770149665768
+          modified: 1770663469657
+          isPrivate: false
+          description: ""
+          sortKey: -1769377471643
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Assinatura
+    meta:
+      id: fld_82f06189ed7e435a8f557a760bad7600
+      created: 1769452014600
+      modified: 1769452014600
+      sortKey: -1769452014600
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/assinaturas/4492448c-f25b-41a1-be37-e7ef75baf09a"
+        name: Atualizar
+        meta:
+          id: req_de6f2ccfa12d41a4bbf879202424606a
+          created: 1769452021621
+          modified: 1770746282924
+          isPrivate: false
+          description: ""
+          sortKey: -1769452027884
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"plano": "S3 Standard Storage & Glacier",
+            	"preco": 85.20,
+            	"startDate": "2025-09-01",
+            	"nextBilling": "2026-03-01"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url
+          }}/assinaturas?page=1&limit=10&status=ATIVO&departamentoId=7&servicoI\
+          d=8bddd4e1-d0af-4c0e-a1f6-8d69aee94a37&responsavelId=fa8be890-8757-4a\
+          a8-8fdf-711b74ab95d0&search=s3"
+        name: Listar - teste filtros
+        meta:
+          id: req_6cdb9837b6344a69806e2f38b8b626df
+          created: 1769457326558
+          modified: 1770746197296
+          isPrivate: false
+          description: ""
+          sortKey: -1769452027984
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/assinaturas/4492448c-f25b-41a1-be37-e7ef75baf09a"
+        name: ListarDetalhes
+        meta:
+          id: req_5f49d13f155c4c23b09c8941f55337df
+          created: 1769459092601
+          modified: 1770746216967
+          isPrivate: false
+          description: ""
+          sortKey: -1769452027934
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/assinaturas"
+        name: Criar
+        meta:
+          id: req_ca02bf8c13824263b26afd61ba4b7602
+          created: 1769538738420
+          modified: 1770746089311
+          isPrivate: false
+          description: ""
+          sortKey: -1769452027909
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"servicoId": "8bddd4e1-d0af-4c0e-a1f6-8d69aee94a37",
+            	"responsavelId": "fa8be890-8757-4aa8-8fdf-711b74ab95d0",
+            	"departamentoId": 7,
+            	"plano": "S3 Standard Storage & Glacier",
+            	"preco": 85.20,
+            	"moeda": "BRL",
+            	"startDate": "2025-09-01",
+            	"nextBilling": "2026-03-01",
+            	"status": "ATIVO"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/assinaturas?"
+        name: Listar - sem filtros
+        meta:
+          id: req_64403f573bc24104ac0d25ccfff92041
+          created: 1769538963565
+          modified: 1770663555754
+          isPrivate: false
+          description: ""
+          sortKey: -1769452027959
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.base_url }}/assinaturas/ba1e308f-583b-4531-855e-6432f79f6109"
+        name: Deletar (soft-delete)
+        meta:
+          id: req_63170e5bf028450680519e079098f769
+          created: 1769540200210
+          modified: 1770663516162
+          isPrivate: false
+          description: ""
+          sortKey: -1769414749838.5
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Dashboard
+    meta:
+      id: fld_1fde5c3a550c4975aaf567a550d27a12
+      created: 1769641287605
+      modified: 1769641287605
+      sortKey: -1769641287605
+      description: ""
+    children:
+      - url: "{{ _.base_url }}/dashboard"
+        name: Listar
+        meta:
+          id: req_a5e627218b5d465f98e0736f848b278f
+          created: 1769641293958
+          modified: 1770663580895
+          isPrivate: false
+          description: ""
+          sortKey: -1769641333814
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.0
+            description: ""
+            disabled: false
+        authentication:
+          type: none
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_325a07e09bce5388ad1f566d03b9d9407c1829db
+    created: 1769202482143
+    modified: 1770745235716
+  cookies:
+    - id: 16bdf530-1a9f-49e9-8ff4-a17b78a2ef41
+      key: token
+      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQURNSU4iLCJub21lIjoiU3VwZXIgQWRtaW4iLCJpYXQiOjE3NzAyMzQzODUsImV4cCI6MTc3MDMyMDc4NSwic3ViIjoiOGVmNjEyOWYtMTJmMy00OWFjLTg2YTItMWE3NmIxNzNmZjk5In0.fBYRAlgfXrasNRb89DKgAudJfzrU4J9zMsIwA7Yo9Og
+      domain: localhost
+      path: /
+      secure: false
+      httpOnly: true
+      hostOnly: true
+    - id: 5f93766e-6b6d-4337-be1a-2c5174c04267
+      key: token
+      value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiQURNSU4iLCJub21lIjoiU3VwZXIgQWRtaW4iLCJpYXQiOjE3NzA3NDUyMzUsImV4cCI6MTc3MDgzMTYzNSwic3ViIjoiYzMwZWYzYWYtYTRlMS00MjMwLWEzZWUtN2Q3Y2QwYmZiNzM5In0.lHed0kvM69J65hHW5K9JFofZ_3odBUgLdR64cZekybM
+      domain: subscription-management-api-case.onrender.com
+      path: /
+      secure: true
+      httpOnly: true
+      hostOnly: true
+environments:
+  name: Base Environment
+  meta:
+    id: env_325a07e09bce5388ad1f566d03b9d9407c1829db
+    created: 1769202482141
+    modified: 1770663281814
+    isPrivate: false
+  data:
+    base_url: ""
+  subEnvironments:
+    - name: Dev (Local)
+      meta:
+        id: env_c84f952d36fb4778ac99576e93089fd6
+        created: 1770663082662
+        modified: 1770663153120
+        isPrivate: false
+        sortKey: 1770663082662
+      data:
+        base_url: http://localhost:3004
+    - name: Prod/Deploy (Render)
+      meta:
+        id: env_e5a9edba097b41e89d44ba0e9b8815e7
+        created: 1770663162339
+        modified: 1770663201388
+        isPrivate: false
+        sortKey: 1770663162339
+      data:
+        base_url: https://subscription-management-api-case.onrender.com

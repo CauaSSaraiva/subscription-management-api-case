@@ -200,6 +200,7 @@ export class DepartamentoService {
         departamentoMap.set(d.id, d.descricao);
       }
 
+      // Application-Side Join
       const resultado = agrupado.map((item) => ({
         departamentoId: item.departamentoId,
         descricao:
