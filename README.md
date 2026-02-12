@@ -3,7 +3,7 @@
 
 > **Este repositório é um laboratório de Engenharia de Software.**
 >
-> Não se trata de um produto comercial, mas sim de um **Case Técnico** desenvolvido para aplicar e validar padrões de arquitetura robustos, segurança e rastreabilidade de dados.
+> Não se trata de um produto comercial, mas sim de um **Case Técnico** desenvolvido para aplicar padrões de arquitetura robustos, segurança e rastreabilidade de dados.
 ---
 *(OBS: Deploy Front/API com Cold-Start, 10-50s)*
 
@@ -138,11 +138,11 @@ Foco na "base" com Segurança inicial, Auditoria e Fluxos de Governança.
 * [x] **Gestão de Assinaturas (Core):** Ciclo de vida completo (CRUD) com **Paginação** (Server-Side), Filtros dinâmicos e *Soft Delete*.
 * [x] **Identity & Access Management (IAM):**
     * **Seed:** Geração automática de *Super Admin* para setup inicial.
-    * **Gestão de Equipe:** Admin possui permissão exclusiva para criar membros e atribuir cargos (**RBAC**: Admin, Manager ou Viewer).
+    * **Gestão de Equipe:** Controle admin sobre o provisionamento/manutenção de contas, com atribuição estrita de cargos (RBAC).
     * **Onboarding Seguro:** Geração de senha provisória padronizada (ex: `Mudar.Nome123`) ou personalizada.
     * **Force Change Password:** Fluxo obrigatório de troca de senha no primeiro login.
 * [x] **Auditoria Avançada:** Registro de logs para auditoria de acesso e também logs com *State Diffing* (comparação JSON de `oldValues` vs `newValues`) para rastreabilidade total de alterações críticas.
-* [x] **Departamentos:** Organização por centros de custo.
+* [x] **Departamentos & Serviços:** Gestão completa (CRUD), Soft Delete e organização estrutural por centros de custo.
 * [x] **"Infraestrutura":** Deploy integrado (API no Render + Front na Vercel) com Proxy para resolução de CORS.
 
 ### 🟡 V2 - Evoluções Planejadas (Backlog)
