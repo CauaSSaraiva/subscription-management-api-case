@@ -69,6 +69,11 @@ export const updateAssinaturaSchema = z
       .enum(AssinaturaStatus, { error: () => "Status de assinatura inválido" })
       .optional()
       .default(AssinaturaStatus.ATIVO),
+
+    version: z.coerce
+      .number({ error: () => "A versão do registro é obrigatória" })
+      .int()
+      .positive(),
   })
   .refine(
     (data) => {

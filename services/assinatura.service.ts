@@ -24,6 +24,7 @@ interface AssinaturaResponse {
   endDate: Date | null;
   nextBilling: Date;
   status: AssinaturaStatus;
+  version: number;
   service: {
     nome: string;
   };
@@ -114,6 +115,7 @@ export class AssinaturaService {
           endDate: true,
           nextBilling: true,
           status: true,
+          version: true,
 
           service: {
             select: {
@@ -214,6 +216,7 @@ export class AssinaturaService {
             endDate: true,
             nextBilling: true,
             status: true,
+            version: true,
             service: {
               select: { nome: true },
             },
@@ -274,6 +277,7 @@ export class AssinaturaService {
           status: true,
           createdAt: true,
           updatedAt: true,
+          version: true,
           service: {
             select: { nome: true, website: true },
           },
@@ -370,7 +374,7 @@ export class AssinaturaService {
         };
       }
 
-      const dadosParaAtualizar: Prisma.AssinaturaUpdateInput = {
+      const dadosParaAtualizar: Prisma.AssinaturaUpdateManyMutationInput = {
         ...(data.plano !== undefined && { plano: data.plano }),
         ...(data.preco !== undefined && { preco: data.preco }),
         ...(data.departamentoId !== undefined && {
@@ -388,13 +392,33 @@ export class AssinaturaService {
         ...(nextBillingNormalizado !== undefined && {
           nextBilling: nextBillingNormalizado,
         }),
+        version: {
+          increment: 1,
+        },
       };
 
-      const assinaturaAtt = await prisma.assinatura.update({
+      const resultado = await prisma.assinatura.updateMany({
         where: {
           id: assinaturaId,
+          version: data.version,
+          deletedAt: null,
         },
         data: dadosParaAtualizar,
+      });
+
+      if (resultado.count === 0) {
+        return {
+          ok: false,
+          error: {
+            message:
+              "O registro foi modificado por outro usuário. Por favor, recarregue a página e tente novamente.",
+          },
+          statusCode: 409
+        };
+      }
+      
+      const assinaturaAtt = await prisma.assinatura.findUniqueOrThrow({
+        where: { id: assinaturaId },
         select: {
           id: true,
           servicoId: true,
@@ -407,22 +431,15 @@ export class AssinaturaService {
           endDate: true,
           nextBilling: true,
           status: true,
-
+          version: true,
           service: {
-            select: {
-              nome: true,
-            },
+            select: { nome: true },
           },
           departamento: {
-            select: {
-              descricao: true,
-            },
+            select: { descricao: true },
           },
           responsavel: {
-            select: {
-              nome: true,
-              email: true,
-            },
+            select: { nome: true, email: true },
           },
         },
       });
@@ -435,6 +452,7 @@ export class AssinaturaService {
         oldValues: assinaturaExiste,
         newValues: assinaturaAtt,
       });
+
 
       const dataFormatada: AssinaturaResponse = {
         ...assinaturaAtt,
