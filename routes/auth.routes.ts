@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/auth.controller";
 import { verificarAutenticacao } from "../middlewares/auth.middleware";
+import { authLimiter } from "../middlewares/rate.limiter.middleware";
 
 
 
@@ -9,6 +10,7 @@ const authController = new AuthController();
 
 authRoutes.post(
   "/",
+  authLimiter,
   authController.login,
 );
 
