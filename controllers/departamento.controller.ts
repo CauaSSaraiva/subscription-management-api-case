@@ -2,7 +2,6 @@ import { type Request, type Response } from "express";
 import { idParamNumberSchema } from "../dtos/params.dto";
 import { DepartamentoService } from "../services/departamento.service";
 import { createDepartamentoSchema } from "../dtos/departamento.dto";
-import { DashboardService } from "../services/dashboard.service";
 
 import z from "zod";
 

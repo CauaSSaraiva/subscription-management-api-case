@@ -5,9 +5,17 @@ import { hash } from "bcrypt";
 async function main() {
   console.log("Seeding ... ...");
 
-  // Criar o Super Admin 
-  const adminPassword = await hash("admin123", 6); // Em produção, usar env, obviamente. 
+  // Criar os usuários necessários
 
+  const adminPassword = await hash("admin123", 6); // Em produção, usar env, obviamente. 
+  const systemId = process.env.SYSTEM_USER_ID;
+
+  if (!systemId) {
+    throw new Error(
+      "ERRO: A variável SYSTEM_USER_ID não está definida em variável de ambiente. O Seed não pode continuar.",
+    );
+  }
+  
   const admin = await prisma.usuario.upsert({
     where: { email: "admin@empresa.com" },
     update: {}, // Se já existe, não faz nada
@@ -17,6 +25,20 @@ async function main() {
       senha: adminPassword,
       role: Role.ADMIN,
       precisaTrocarSenha: false
+    },
+  });
+
+  // usuário para logs de/e ações do sistema (como cron)
+  const systemUser = await prisma.usuario.upsert({
+    where: { email: "sistema@sistema.com" },
+    update: {}, // Se já existe, não faz nada
+    create: {
+      id: systemId,
+      nome: "System User",
+      email: "sistema@sistema.com",
+      senha: adminPassword,
+      role: Role.ADMIN,
+      precisaTrocarSenha: false,
     },
   });
 

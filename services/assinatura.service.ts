@@ -11,6 +11,7 @@ import { Decimal } from "@prisma/client/runtime/client";
 import { DateUtils } from "../utils/date.utils";
 import { LoggerService } from "./logger.service";
 import { LogAction } from "./logger.service";
+import  { type LogEntryParams } from "./logger.service";
 
 interface AssinaturaResponse {
   id: string;
@@ -137,7 +138,7 @@ export class AssinaturaService {
       });
 
       LoggerService.log({
-        userId: usuarioLogadoId,
+        usuarioId: usuarioLogadoId,
         acao: LogAction.CREATE,
         entidade: "Assinatura",
         entidadeId: assinatura.id,
@@ -413,10 +414,10 @@ export class AssinaturaService {
             message:
               "O registro foi modificado por outro usuário. Por favor, recarregue a página e tente novamente.",
           },
-          statusCode: 409
+          statusCode: 409,
         };
       }
-      
+
       const assinaturaAtt = await prisma.assinatura.findUniqueOrThrow({
         where: { id: assinaturaId },
         select: {
@@ -445,14 +446,13 @@ export class AssinaturaService {
       });
 
       LoggerService.log({
-        userId: usuarioLogadoId,
+        usuarioId: usuarioLogadoId,
         acao: LogAction.UPDATE,
         entidade: "Assinatura",
         entidadeId: assinaturaId,
         oldValues: assinaturaExiste,
         newValues: assinaturaAtt,
       });
-
 
       const dataFormatada: AssinaturaResponse = {
         ...assinaturaAtt,
@@ -498,7 +498,7 @@ export class AssinaturaService {
       });
 
       LoggerService.log({
-        userId: usuarioLogadoId,
+        usuarioId: usuarioLogadoId,
         acao: LogAction.DELETE,
         entidade: "Assinatura",
         entidadeId: assinaturaId,
@@ -642,10 +642,105 @@ export class AssinaturaService {
     }
   }
 
+  async processarVencimentos(): Promise<
+    ServiceResult<{
+      expirados: number;
+      pendentes: number;
+    }>
+  > {
+    try {
+      const hoje = new Date();
+      const dataInicio = DateUtils.inicioDiaUTC(hoje);
+      const SYSTEM_USER_ID = process.env.SYSTEM_USER_ID;
+
+      if (!SYSTEM_USER_ID) {
+        return { 
+          ok: false, 
+          error: { message: "System User Id não está configurado" }, 
+          statusCode: 500 
+        };
+      }
+
+      const result = await prisma.$transaction(async (tx) => {
+        
+        // usando o updateMany com retorno, para garantirmos que, caso um update não aconteça por conta da trava adicional no where
+        // que existe pro caso de concorrência durante o tempo de execução do cron + alguém alterar o status
+        // não geremos logs falsos para ações que não ocorreram no sistema, e sim, para updates que realmente ocorreram
+        const atualizadosExpirados = await tx.assinatura.updateManyAndReturn({
+          where: {
+            status: AssinaturaStatus.ATIVO, // trava de concorrência
+            deletedAt: null,
+            endDate: { lte: dataInicio },
+          },
+          data: { status: AssinaturaStatus.EXPIRADO },
+          select: { id: true }, // só o necessário
+        });
+
+        const atualizadosPendentes = await tx.assinatura.updateManyAndReturn({
+          where: {
+            status: AssinaturaStatus.ATIVO, 
+            deletedAt: null,
+            nextBilling: { lte: dataInicio },
+            OR: [{ endDate: null }, { endDate: { gt: dataInicio } }],
+          },
+          data: { status: AssinaturaStatus.RENOVACAO_PENDENTE },
+          select: { id: true },
+        });
+
+
+        // criando logs que serão gerados com integridade, usando como base o retorno dos próprios updateManyAndReturn
+        const logs: LogEntryParams[] = [];
+
+
+        if (atualizadosExpirados.length > 0) {
+          logs.push(...atualizadosExpirados.map((reg): LogEntryParams => ({
+            usuarioId: SYSTEM_USER_ID,
+            acao: LogAction.UPDATE,
+            entidade: "Assinatura",
+            entidadeId: reg.id,
+            oldValues: { status: AssinaturaStatus.ATIVO },
+            newValues: { status: AssinaturaStatus.EXPIRADO }
+          })));
+        }
+
+        if (atualizadosPendentes.length > 0) {
+          logs.push(...atualizadosPendentes.map((reg): LogEntryParams => ({
+            usuarioId: SYSTEM_USER_ID,
+            acao: LogAction.UPDATE,
+            entidade: "Assinatura",
+            entidadeId: reg.id,
+            oldValues: { status: AssinaturaStatus.ATIVO },
+            newValues: { status: AssinaturaStatus.RENOVACAO_PENDENTE },
+          })));
+        }
+
+        if (logs.length > 0) {
+          await LoggerService.logMany(logs, tx);
+        }
+
+        return {
+          expirados: atualizadosExpirados.length,
+          pendentes: atualizadosPendentes.length,
+        };
+      });
+
+      return { ok: true, data: result };
+
+    } catch (error) {
+      return {
+        ok: false,
+        error: { message: "Erro crítico ao processar vencimentos" },
+        statusCode: 500,
+      };
+    }
+  }
+
+
   // helper pro front
   private calcularDiasRestantes(dataAlvo: Date): number {
     const agoraUtc = DateUtils.inicioDiaUTC(new Date());
     const diferencaMs = dataAlvo.getTime() - agoraUtc.getTime();
     return Math.ceil(diferencaMs / (1000 * 60 * 60 * 24));
   }
+
 }

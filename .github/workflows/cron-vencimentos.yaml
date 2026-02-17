@@ -1,0 +1,47 @@
+name: Cron Job - Verificar Vencimentos
+
+on:
+  schedule:
+    # todos os dias às 09:00 UTC (06:00 da manhã no Brasil)
+    # minuto hora dia_mes mês dia_semana
+    - cron: '0 9 * * *'
+  
+  #  Gatilho Manual (Botão "Run Workflow")
+  workflow_dispatch:
+
+jobs:
+  wake-and-process:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Acordar API e Processar Vencimentos
+        env:
+          API_URL: ${{ secrets.RENDER_API_URL }}
+          INTERNAL_SECRET: ${{ secrets.INTERNAL_API_SECRET }}
+        run: |
+          echo "Iniciando Cron Job..."
+          echo "Alvo: $API_URL/sistema/cron-vencimentos"
+          
+          # COMANDO CURL
+          # --request POST: O método.
+          # --url: A rota completa.
+          # --header: Passa o segredo de segurança.
+          # --max-time 300: Espera até 5 minutos (300s) pela resposta.
+          # --connect-timeout 60: Tenta conectar por até 60s (tempo do Render acordar).
+          # --retry 3: Se falhar, tenta mais 3 vezes.
+          # --retry-delay 5: Espera 5s entre tentativas.
+          # --fail: Se a API der erro (400/500), o GitHub Actions marca como falha.
+          # --verbose: Mostra detalhes no log (debug).
+          
+          curl --request POST \
+               --url "$API_URL/sistema/cron-vencimentos" \
+               --header "x-internal-secret: $INTERNAL_SECRET" \
+               --header "Content-Type: application/json" \
+               --max-time 300 \
+               --connect-timeout 60 \
+               --retry 3 \
+               --retry-delay 5 \
+               --fail \
+               --verbose
+
+          echo "Processamento finalizado com sucesso!"
