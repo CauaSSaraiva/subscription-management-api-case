@@ -1,6 +1,37 @@
 import rateLimit from "express-rate-limit";
+import ipaddr from "ipaddr.js";
 
 const ENV_SECRET = process.env.INTERNAL_API_SECRET;
+
+const normalizarIp = (ip: string): string => {
+  try {
+    const parsed = ipaddr.parse(ip);
+
+    // IPv6
+    if (parsed.kind() === "ipv6") {
+      const v6 = parsed as ipaddr.IPv6;
+
+      if (v6.isIPv4MappedAddress()) {
+        return v6.toIPv4Address().toString();
+      }
+
+      // zera a segunda metade dos bytes do ip (os últimos 64 bits)
+      // isso faz com que todos os IPs da mesma casa/rede sejam iguais pro Rate Limit
+      const byteArray = v6.toByteArray();
+      for (let i = 8; i < 16; i++) {
+        byteArray[i] = 0;
+      }
+
+      return ipaddr.fromByteArray(byteArray).toString();
+    }
+
+    // IPv4 padrão -> só devolve
+    return parsed.toString();
+  } catch {
+    // fallback pra não cair a api
+    return ip;
+  }
+};
 
 // lidar com caso específico de proxy reverso usado no front
 // por conta dos deploy em domínios diferentes e free-tier
@@ -14,9 +45,13 @@ const pegarIpSafe = (req: any): string => {
 
     // se tem IP repassado (é o proxy do client-side), usa esse IP.
     if (forwarded) {
-      return (typeof forwarded === "string" ? forwarded : forwarded[0])
+      const clientIp = (
+        typeof forwarded === "string" ? forwarded : forwarded[0]
+      )
         .split(",")[0]
         .trim();
+
+      return normalizarIp(clientIp);
     }
 
     // fail-safe caso a função de skip falhar (skip roda primeiro, em teoria nunca cairá aqui e nem deve)
