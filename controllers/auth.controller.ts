@@ -63,8 +63,6 @@ export class AuthController {
   buscarPerfil = async (req: Request, res: Response) => {
     const id = req.user?.sub;
 
-    console.log(id)
-
     // em teoria nunca acontecerá por conta do middleware
     if (!id) {
       return res.status(401).json({

@@ -7,23 +7,12 @@ import type { UpdateSenhaUsuarioDTO } from "../dtos/usuario.dto";
 import { Prisma } from "../generated/prisma/client";
 import { LogAction, LoggerService } from "./logger.service";
 
-interface UsuarioResponse {
-  id: string;
-  nome: string;
-  email: string;
-  role: string;
-}
-
-interface UsuarioAdminResponse extends UsuarioResponse {
-  deletedAt?: Date | null;
-  createdAt: Date;
-}
-
-type UsuarioSelectResponse = Omit<UsuarioResponse, "email" | "role">;
-
-interface UsuarioPerfilResponse extends UsuarioResponse {
-  precisaTrocarSenha: boolean;
-}
+import {
+  type UsuarioResponse,
+  type UsuarioAdminResponse,
+  type UsuarioSelectResponse,
+  type UsuarioPerfilResponse,
+} from "../dtos/usuario.dto";
 
 export class UsuarioService {
   private gerarSenhaPadrao(nome: string): string {
@@ -283,7 +272,7 @@ export class UsuarioService {
       });
 
       LoggerService.log({
-        userId: usuarioId,
+        usuarioId: usuarioId,
         acao: LogAction.UPDATE,
         entidade: "Usuario",
         entidadeId: usuarioId,
@@ -327,8 +316,7 @@ export class UsuarioService {
         return {
           ok: false,
           error: {
-            message:
-              "Não é permitido excluir o usuário admin da demonstração.",
+            message: "Não é permitido excluir o usuário admin da demonstração.",
           },
           statusCode: 403,
         };

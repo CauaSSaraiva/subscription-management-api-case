@@ -2,17 +2,8 @@ import { prisma } from "../prisma";
 import { type ServiceResult } from "../utils/service-result";
 import { type CreateDepartamentoDTO } from "../dtos/departamento.dto";
 import { AssinaturaStatus, Prisma } from "../generated/prisma/client";
-
-interface DepartamentoResponse {
-  id: number;
-  descricao: string;
-}
-
-interface ChartsResponse {
-  departamentoId: number;
-  descricao: string;
-  total: string;
-}
+import { type DepartamentoResponse } from "../dtos/departamento.dto";
+import { type ChartsResponse } from "../dtos/dashboard.dto";
 
 export class DepartamentoService {
   async criar(

@@ -12,40 +12,7 @@ import { DateUtils } from "../utils/date.utils";
 import { LoggerService } from "./logger.service";
 import { LogAction } from "./logger.service";
 import  { type LogEntryParams } from "./logger.service";
-
-interface AssinaturaResponse {
-  id: string;
-  servicoId: string;
-  responsavelId: string;
-  departamentoId: number;
-  plano: string;
-  preco: string;
-  moeda: Moeda;
-  startDate: Date;
-  endDate: Date | null;
-  nextBilling: Date;
-  status: AssinaturaStatus;
-  version: number;
-  service: {
-    nome: string;
-  };
-  departamento: {
-    descricao: string;
-  };
-  responsavel: {
-    nome: string;
-    email: string;
-  };
-}
-
-interface AssinaturaDetalhesResponse extends AssinaturaResponse {
-  createdAt: Date;
-  updatedAt: Date;
-  service: {
-    nome: string;
-    website: string | null;
-  };
-}
+import { type AssinaturaResponse, type AssinaturaDetalhesResponse } from "../dtos/assinatura.dto";
 
 interface MaisCarosResponse {
   id: string;

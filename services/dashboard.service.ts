@@ -1,46 +1,8 @@
-import { prisma } from "../prisma";
 import { type ServiceResult } from "../utils/service-result";
 import { DepartamentoService } from "./departamento.service";
 import { AssinaturaService } from "./assinatura.service";
+import { type DashboardResponse } from "../dtos/dashboard.dto";
 
-export interface CardsResponse {
-  totalMensal: string;
-  totalAssinaturas: number;
-  ticketMedio: string;
-}
-
-interface ChartsResponse {
-  departamentoId: number;
-  descricao: string;
-  total: string;
-}
-
-interface MaisCarosResponse {
-  id: string;
-  servico: string;
-  linkServico: string | null;
-  plano: string;
-  valor: string;
-}
-interface ProximosVencimentosResponse {
-  id: string;
-  servico: string;
-  linkServico: string | null;
-  valor: string;
-  vencimento: Date;
-  diasRestantes: number;
-}
-
-interface ListasResponse {
-  maisCaros: MaisCarosResponse[];
-  proximosVencimentos: ProximosVencimentosResponse[];
-}
-
-interface DashboardResponse {
-  cards: CardsResponse | null;
-  charts: { porDepartamento: ChartsResponse[] };
-  listas: ListasResponse;
-}
 
 export class DashboardService {
   private departamentoService: DepartamentoService;

@@ -5,12 +5,7 @@ import {
   type UpdateServicoDTO,
 } from "../dtos/servico.dto";
 import { Prisma } from "../generated/prisma/client";
-
-interface ServicoResponse {
-  id: string;
-  nome: string;
-  website: string | null;
-}
+import { type ServicoResponse } from "../dtos/servico.dto";
 
 export class ServicoService {
   async criar(data: CreateServicoDTO): Promise<ServiceResult<ServicoResponse>> {

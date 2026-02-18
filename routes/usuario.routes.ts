@@ -24,7 +24,7 @@ usuarioRoutes.get(
   "/opcoes",
   verificarAutenticacao,
   // Permissao([Role.ADMIN]),
-  usuarioController.listar
+  usuarioController.listarParaSelect
 );
 
 usuarioRoutes.patch(

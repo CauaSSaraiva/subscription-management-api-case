@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../utils/zod";
 
 export const jwtPayloadSchema = z.object({
   sub: z.string(),

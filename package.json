@@ -27,6 +27,7 @@
   "homepage": "https://github.com/CauaSSaraiva/subscription-management-api-case#readme",
   "description": "",
   "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.4.1",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@types/cors": "^2.8.19",
@@ -39,6 +40,7 @@
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.17.2",
     "prisma": "^7.3.0",
+    "swagger-ui-express": "^5.0.1",
     "tsx": "^4.21.0",
     "zod": "^4.3.6"
   },
@@ -49,6 +51,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.0.10",
     "@types/pg": "^8.16.0",
+    "@types/swagger-ui-express": "^4.1.8",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"

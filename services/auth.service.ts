@@ -4,15 +4,7 @@ import { type LoginDTO } from "../dtos/auth.dto";
 import jwt from "jsonwebtoken";
 import { type ServiceResult } from "../utils/service-result";
 import { AcessoStatus } from "../generated/prisma/enums";
-
-type LoginResponse = {
-  token: string;
-  user: {
-    nome: string;
-    email: string;
-    role: string;
-  };
-};
+import { type LoginResponse } from "../dtos/auth.dto";
 
 const FAKE_HASH = process.env.FAKE_HASH!;
 const { sign} = jwt;

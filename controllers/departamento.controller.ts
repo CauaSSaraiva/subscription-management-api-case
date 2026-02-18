@@ -45,7 +45,7 @@ export class DepartamentoController {
       });
     }
 
-    return res.status(201).json({
+    return res.status(200).json({
       message: "Departamentos listados com sucesso!",
       data: resultado.data,
     });
@@ -60,7 +60,7 @@ export class DepartamentoController {
       });
     }
 
-    return res.status(201).json({
+    return res.status(200).json({
       message: "Gastos por departamento listados com sucesso!",
       data: resultado.data,
     });

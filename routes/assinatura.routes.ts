@@ -5,41 +5,41 @@ import { Permissao } from "../middlewares/permissions.middleware";
 import { Role } from "../generated/prisma/enums";
 
 const assinaturaRoutes = Router();
-const assinaturaController = new AssinaturaController()
+const assinaturaController = new AssinaturaController();
 
 assinaturaRoutes.post(
   "/",
   verificarAutenticacao,
   Permissao([Role.ADMIN, Role.MANAGER]),
-  assinaturaController.criar
+  assinaturaController.criar,
 );
 
 assinaturaRoutes.get(
   "/",
   verificarAutenticacao,
   // Permissao([Role.ADMIN, Role.MANAGER]),
-  assinaturaController.listar
+  assinaturaController.listar,
 );
 
 assinaturaRoutes.get(
   "/:id",
   verificarAutenticacao,
   // Permissao([Role.ADMIN, Role.MANAGER]),
-  assinaturaController.listarDetalhes
+  assinaturaController.listarDetalhes,
 );
 
 assinaturaRoutes.patch(
   "/:id",
   verificarAutenticacao,
   Permissao([Role.ADMIN, Role.MANAGER]),
-  assinaturaController.atualizar
+  assinaturaController.atualizar,
 );
 
 assinaturaRoutes.delete(
   "/:id",
   verificarAutenticacao,
   Permissao([Role.ADMIN, Role.MANAGER]),
-  assinaturaController.deletar
+  assinaturaController.deletar,
 );
 
 export { assinaturaRoutes };

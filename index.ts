@@ -11,6 +11,11 @@ import { dashboardRoutes } from "./routes/dashboard.routes";
 import { apiLimiter } from "./middlewares/rate.limiter.middleware";
 import { sistemaRoutes } from "./routes/sistema.routes";
 
+import swaggerUi from "swagger-ui-express";
+import { generateOpenAPI } from "./docs/generator";
+
+
+
 const app = express();
 const port = process.env.PORT || 3004;
 
@@ -29,6 +34,8 @@ app.use(
 //   next(); // Passa para o próximo (que é o Rate Limiter)
 // });
 app.use(apiLimiter)
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(generateOpenAPI()));
 
 app.use("/usuarios", usuarioRoutes)
 app.use("/auth", authRoutes)
