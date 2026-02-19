@@ -10,7 +10,8 @@ import { Moeda, AssinaturaStatus } from "../generated/prisma/client";
 import { Decimal } from "@prisma/client/runtime/client";
 import { DateUtils } from "../utils/date.utils";
 import { LoggerService } from "./logger.service";
-import { LogAction } from "./logger.service";
+// import { LogAction } from "./logger.service";
+import { LogAction } from "../generated/prisma/client";
 import  { type LogEntryParams } from "./logger.service";
 import { type AssinaturaResponse, type AssinaturaDetalhesResponse } from "../dtos/assinatura.dto";
 
@@ -293,6 +294,29 @@ export class AssinaturaService {
       const assinaturaExiste = await prisma.assinatura.findUnique({
         where: {
           id: assinaturaId,
+        },
+        select: {
+          id: true,
+          servicoId: true,
+          responsavelId: true,
+          departamentoId: true,
+          plano: true,
+          preco: true,
+          moeda: true,
+          startDate: true,
+          endDate: true,
+          nextBilling: true,
+          status: true,
+          version: true,
+          service: {
+            select: { nome: true },
+          },
+          departamento: {
+            select: { descricao: true },
+          },
+          responsavel: {
+            select: { nome: true, email: true },
+          },
         },
       });
 

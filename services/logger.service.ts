@@ -1,19 +1,28 @@
 import { prisma } from "../prisma";
 import { Prisma } from "../generated/prisma/client";
 
-export const LogAction = {
-  CREATE: "CREATE",
-  UPDATE: "UPDATE",
-  DELETE: "DELETE",
-} as const; // "read-only"
+// export const LogAction = {
+//   CREATE: "CREATE",
+//   UPDATE: "UPDATE",
+//   DELETE: "DELETE",
+// } as const;
+
+// export const Entidade = {
+//   Assinatura: "Assinatura",
+//   Usuario: "Usuario",
+//   Servico: "Servico",
+//   Departamento: "Departamento",
+// } as const;// "read-only"
+import { type LogAction, type Entidade } from "../generated/prisma/client";
 
 
-export type LogActionType = (typeof LogAction)[keyof typeof LogAction];
+
 
 export interface LogEntryParams {
   usuarioId: string;
-  acao: LogActionType | string;
-  entidade: "Assinatura" | "Usuario" | "Servico" | "Departamento";
+  acao: LogAction;
+  // "Assinatura" | "Usuario" | "Servico" | "Departamento";
+  entidade: Entidade
   entidadeId: string;
   oldValues?: Prisma.InputJsonObject;
   newValues?: Prisma.InputJsonObject;

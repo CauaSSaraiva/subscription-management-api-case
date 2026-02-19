@@ -5,7 +5,8 @@ import { type ServiceResult } from "../utils/service-result";
 import { type UpdateUsuarioDTO } from "../dtos/usuario.dto";
 import type { UpdateSenhaUsuarioDTO } from "../dtos/usuario.dto";
 import { Prisma } from "../generated/prisma/client";
-import { LogAction, LoggerService } from "./logger.service";
+import { LoggerService } from "./logger.service";
+import { LogAction } from "../generated/prisma/client";
 
 import {
   type UsuarioResponse,

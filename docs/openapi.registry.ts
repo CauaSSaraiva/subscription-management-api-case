@@ -11,6 +11,7 @@ import { createUsuarioSchema, updateSenhaUsuarioSchema, updateUsuarioSchema, usu
 import { chartsResponseSchema, dashboardResponseSchema } from '../dtos/dashboard.dto';
 import { createDepartamentoSchema, departamentoResponseSchema } from '../dtos/departamento.dto';
 import { createServicoSchema, servicoResponseSchema, updateServicoSchema } from '../dtos/servico.dto';
+import { listLogsSchema, logsResponseSchema } from '../dtos/logs.dto';
 // extendZodWithOpenApi(z);
 
 
@@ -228,7 +229,7 @@ registry.registerPath({
   security: [{ cookieAuth: [] }],
 
   request: {
-    params: listAssinaturaSchema,
+    query: listAssinaturaSchema,
   },
 
   responses: {
@@ -238,7 +239,7 @@ registry.registerPath({
         "application/json": {
           schema: createSuccessSchema(
             assinaturaResponseSchema,
-            "SucessoCriarAssinatura",
+            "SucessoListarAssinatura",
           ),
         },
       },
@@ -1114,6 +1115,42 @@ registry.registerPath({
     },
     500: {
       description: "Internal Server Error",
+      content: { "application/json": { schema: ServiceErrorSchema } },
+    },
+  },
+});
+
+// ROTAS SISTEMA
+
+registry.registerPath({
+  method: "get",
+  path: "/sistema/logs",
+  tags: ["Sistema"],
+  summary: "Listar Logs com paginação e filtros",
+  security: [{ cookieAuth: [] }],
+
+  request: {
+    query: listLogsSchema,
+  },
+
+  responses: {
+    200: {
+      description: "Sucesso",
+      content: {
+        "application/json": {
+          schema: createSuccessSchema(
+            logsResponseSchema,
+            "SucessoListarLogs",
+          ),
+        },
+      },
+    },
+    400: {
+      description: "Chamada inválida",
+      content: { "application/json": { schema: ValidationErrorSchema } },
+    },
+    500: {
+      description: "Erro ao listar",
       content: { "application/json": { schema: ServiceErrorSchema } },
     },
   },

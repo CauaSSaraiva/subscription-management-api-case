@@ -120,8 +120,8 @@ model Assinatura {
 model Log {
   id          String   @id @default(uuid())
   
-  acao          String   // "CREATE", "UPDATE_PRICE", "CANCEL"
-  entidade      String   // "Assinatura", "Usuario"
+  acao          LogAction   // "CREATE", "UPDATE_PRICE", "CANCEL"
+  entidade      Entidade   // "Assinatura", "Usuario"
   entidadeId    String   // ID do que foi alterado
   
   oldValues   Json?    // O que era antes (Snapshot)
@@ -162,4 +162,17 @@ model LogAcesso {
 enum AcessoStatus {
   SUCCESS
   FAILURE
+}
+
+enum LogAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum Entidade {
+  Assinatura
+  Usuario
+  Servico
+  Departamento
 }

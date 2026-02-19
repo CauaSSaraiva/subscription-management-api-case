@@ -1,6 +1,7 @@
 import rateLimit from "express-rate-limit";
 import ipaddr from "ipaddr.js";
 
+
 const ENV_SECRET = process.env.INTERNAL_API_SECRET;
 
 const normalizarIp = (ip: string): string => {
@@ -77,14 +78,17 @@ const devePular = (req: any): boolean => {
 
 // limiter global (todas rotas)
 export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 50, // limite de req. da janela
+  windowMs: 10 * 60 * 1000, // 10 minutos
+  max: 100, // limite de req. da janela
   standardHeaders: true, // retorna info nos headers `RateLimit-*`
   legacyHeaders: false, // desabilita os headers `X-RateLimit-*` (antigos)
 
   //identificando o usuario / de onde vem
   keyGenerator: pegarIpSafe,
   skip: devePular, // ssr
+  validate: {
+    keyGeneratorIpFallback: false
+  },
 
   message: {
     status: 429,
@@ -100,6 +104,9 @@ export const authLimiter = rateLimit({
   //identificando o usuario / de onde vem
   keyGenerator: pegarIpSafe,
   skip: devePular,
+  validate: {
+    keyGeneratorIpFallback: false,
+  },
 
   message: {
     status: 429,
