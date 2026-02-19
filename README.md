@@ -63,76 +63,62 @@ O backend foi construído seguindo **Layered Architecture** (Camadas). A comunic
 
 ### 💫 Destaques da Implementação (V1)
 
-#### 1. The "Result Pattern" (Service-Controller Communication)
+#### 1. Padrões de Código e Performance
 
-Para evitar o anti-padrão de lançar erros genéricos ou passar o objeto `res` para o Service, adotei um padrão de retorno tipado. O Service devolve um objeto de sucesso ou erro controlado, e o Controller decide como apresentar isso.
+* **"Result Pattern"**: Para evitar o anti-padrão de lançar erros genéricos ou passar o objeto `res` para o Service, adotei um padrão de retorno tipado. O Service devolve um objeto de sucesso ou erro controlado, e o Controller decide como apresentar isso.
+    ```typescript
+    // Exemplo real do projeto (ServiceResult)
+    export type ServiceResult<T> =
+      | { ok: true; data: T; meta?: PaginationMeta } // Sucesso explícito
+      | { ok: false; error: ServiceError; statusCode: number }; // Erro de negócio tratado
 
-```typescript
-// Exemplo real do projeto (ServiceResult)
-export type ServiceResult<T> =
-  | { ok: true; data: T; meta?: PaginationMeta } // Sucesso explícito
-  | { ok: false; error: ServiceError; statusCode: number }; // Erro de negócio tratado
+    ```
+* **Anti-N+1 Queries (Application-Side Join):** Evitei o problema clássico de iterar sobre uma lista fazendo queries adicionais pra cada item da lista. Utilizo agrupamento (`groupBy`), extraio os IDs e faço apenas **uma** consulta adicional (`WHERE IN`), cruzando os dados em memória via Hash Map (O(1)).
 
-```
+#### 2. Controle de Tráfego (Rate Limiting)
+Implementei Rate Limiting contra Brute-Force e DDoS  resolvendo desafios de infraestrutura (Render/Vercel).
+* **Arquitetura Base:** Estratégia de *Fixed Window* (100 req/10min para rotas comuns, 5 req/1h para Auth).
 
-#### 2. Performance e Otimização de Queries (Anti-N+1)
-No carregamento de gráficos do Dashboard, utilizei a estratégia de **Application-Side Join** para evitar o problema de N+1 Queries.
-* **O Problema:** Iterar sobre um agrupamento e buscar o nome do departamento um a um.
-* **A Solução:** Realizo o agrupamento (`groupBy`), extraio os IDs e faço apenas **uma** consulta adicional (`WHERE IN`), cruzando os dados em memória usando um `Map` (Hash Table) para acesso O(1).
+* **Desafio:** Em nuvem, o IP de conexão (`req.ip`) geralmente é do Load Balancer. Confiar cegamente no `x-forwarded-for` permite spoofing. Além disso, o Server-Side Rendering (SSR) do Next.js poderia ser bloqueado ao fazer requisições do servidor.
+* **Solução "Conditional Trust":** 
+um **Key Generator Customizado** com um "Handshake Secreto":
+    * **Tráfego Cliente (Proxy):** Se possui o Segredo + `x-forwarded-for`, o sistema confia no header e extrai o IP real do cliente.
+    * **Tráfego SSR (Servidor):** Se possui Segredo mas sem IP repassado, é identificado como "TRUSTED_SSR_SERVER" (bypass).
+    * **Tráfego Não Confiável:** Sem segredo, ignora headers injetados e bloqueia o IP de conexão real.
 
-#### 3. Auditoria e Rastreabilidade (Audit Logs)
 
-Além de auditoria "básica" sobre Acesso/Login e relacionados contendo ip/user-agent, há também Logs de auditoria em que o sistema **não apenas registra "quem fez", mas "o que mudou".**
+#### 3. Auditoria e Integridade de dados
 
-* **State Diffing:** Operações de atualização (`UPDATE`) salvam um snapshot JSON comparando `oldValues` vs `newValues`.
-* **Contexto:** Logs capturam ID do usuário, Entidade afetada e Ação realizada.
+* **Audit Logs com State Diffing:** O sistema registra não apenas "quem fez", mas "o que mudou". Operações de `UPDATE` salvam um snapshot JSON comparando `oldValues` vs `newValues`.
 
-Exemplo da estrutura salva no banco (resumido para evitar poluição do README):
-```JSON
-[
-  {
-    "id": "0f1e7796-e33a-41a7-90a1-7618a63b7f5b",
-    "acao": "UPDATE",
-    "entidade": "Assinatura",
-    "entidadeId": "c34e0460-8161-4dac-824b-fbebeb8f9b39",
-    "usuarioId": "8ef6129f-12f3-49ac-86a2-1a76b173ff99",
-    "createdAt": "2026-02-02 21:32:35.955",
-    "oldValues": {
-      "status": "RENOVACAO_PENDENTE",
-      "endDate": null,
-      "version": 1,
-      "updatedAt": "2026-02-02T21:32:04.412Z"
-    },
-    "newValues": {
-      "status": "RENOVACAO_PENDENTE",
-      "endDate": "2027-03-10T23:59:59.999Z",
-      "service": { "nome": "teste" },
-      "responsavel": { "email": "teste@gmail.com" },
-      "departamento": { "descricao": "departamento2" }
-    }
-  }
-]
-```
-#### 4. Integridade e Segurança de Dados
+  Exemplo visual pelo front:
+  ![LogsDiffVisual](https://i.imgur.com/dB3Eh4L.png)
+
+* **Soft Delete:** Nenhuma assinatura é removida 'fisicamente', mantendo dados no banco.
+* **Transações Atômicas:** Uso de `prisma.$transaction` em operações de leitura complexas (ex: paginação que exige `count` + `findMany` simultâneos) para garantir consistência de leitura.
+* **Sanitização de Datas:** Tratamento centralizado (`DateUtils`) para garantir consistência de UTC no início/fim de vigência das assinaturas.
+
+
+#### 4. Segurança
 
 * **Mitigação de Timing Attacks:** No fluxo de login, o sistema executa uma comparação de hash simulada (`FAKE_HASH`) mesmo quando o e-mail não é encontrado. Isso padroniza o tempo de resposta da API, impedindo que atacantes descubram quais e-mails estão cadastrados baseados na latência da resposta (User Enumeration).
 
-* **Soft Delete:** Nenhuma assinatura é removida fisicamente do banco. O método `deletar` apenas preenche o campo `deletedAt`, mantendo histórico fiscal/legal.
-
-* **Transações Atômicas:** Uso de `prisma.$transaction` em operações de leitura complexas (ex: paginação que exige `count` + `findMany` simultâneos) para garantir consistência de leitura.
-
-* **Sanitização de Datas:** Tratamento centralizado (`DateUtils`) para garantir consistência de UTC no início/fim de vigência das assinaturas.
-
 * **HttpOnly Cookies:** Autenticação via cookie seguro para mitigar riscos de XSS, com API Proxy no Frontend para resolver CORS entre domínios (Vercel/Render).
 
+#### 5. Concorrência e Automação
+* **Optimistic Locking:** Implementado via versionamento (`@version`) na entidade **Assinatura**. Como é a tabela transacional central, isso previne *Race Conditions* onde dois admin/manager tentam editar o mesmo contrato simultaneamente.
 
+  ![ExemploVisualConcorrencia](https://i.imgur.com/0bLubDh.png)
 
+* **Cron Jobs (GitHub Actions):** Automação para verificar vencimentos diariamente (Schedule Task). O script possui lógica de "Wake Up" para lidar com o *Cold Start* da Render, garantindo que a API esteja online antes de processar a fila.
+
+  ![ExemploVisualCron](https://i.imgur.com/9i4kGft.png)
 
 ##  Funcionalidades (Roadmap)
 
 O desenvolvimento foi planejado em fases para simular necessidade de entrega, priorizando a base na V1.
 
-### ✅ V1 - MVP (Entregue)
+### ✅ V1 - MVP (Base)
 Foco na "base" com Segurança inicial, Auditoria e Fluxos de Governança.
 
 * [x] **Gestão de Assinaturas (Core):** Ciclo de vida completo (CRUD) com **Paginação** (Server-Side), Filtros dinâmicos e *Soft Delete*.
@@ -145,17 +131,35 @@ Foco na "base" com Segurança inicial, Auditoria e Fluxos de Governança.
 * [x] **Departamentos & Serviços:** Gestão completa (CRUD), Soft Delete e organização estrutural por centros de custo.
 * [x] **"Infraestrutura":** Deploy integrado (API no Render + Front na Vercel) com Proxy para resolução de CORS.
 
-### 🟡 V2 - Evoluções Planejadas (Backlog)
-Funcionalidades mapeadas para a próxima evolução de engenharia.
-
-* [ ] **Documentação:** Migração da coleção do Insomnia para **Swagger/OpenAPI**.
-* [ ] **Concorrência:** Implementação de *Optimistic Locking* (versionamento de linha) para evitar conflitos de edição simultânea.
-* [ ] **Automação:** *Background Jobs* (Cron) para verificação diária de vencimentos e alteração automática de status.
-* [ ] **Rating Limit**: Controle/Proteção do Fluxo de Requisições e evitar Brute-Force
-* [ ] **Testes:** Cobertura de testes de integração (E2E).
-* [ ] **Auditoria Visual:** Interface gráfica para visualização dos logs no Dashboard.
+### 🟡 V2 - Evoluções (Atual)
+Foco em melhorias da 'base' e robustez.
+* [x] **Documentação:** Migração da coleção do Insomnia para **Swagger/OpenAPI**.
+* [x] **Concorrência:** Implementação de *Optimistic Locking* (versionamento de linha) para evitar conflitos de edição simultânea.
+* [x] **Automação:** *Background Jobs* (Cron) para verificação diária de vencimentos e alteração automática de status.
+* [x] **Rate Limit**: Controle/Proteção do Fluxo de Requisições e evitar Brute-Force
+* [x] **Auditoria Visual:** Interface gráfica para visualização dos logs no Dashboard.
+* [ ] **Testes:** Cobertura de testes.
 * [ ] **Notificações:** Alertas por e-mail para assinaturas prestes a expirar.
 
+### Documentação da API
+
+
+A documentação interativa da API está disponível via **Swagger UI**. É a forma mais rápida de testar os endpoints e visualizar os schemas de dados diretamente pelo navegador.
+
+**Acessar Swagger UI:** https://subscription-management-api-case.onrender.com/api-docs/
+
+![Exemplo Visual Swagger](https://i.imgur.com/edfMihU.png)
+
+**Alternativa (Insomnia):**
+Caso prefira testar localmente, a coleção de requisições está disponível em 📂 `docs/Insomnia_v1_collection.yaml`.
+1. Importe o arquivo no **Insomnia**.
+2. Selecione o ambiente no menu superior esquerdo (**Dev** para `localhost:3004` ou **Prod** para a API no Render).
+> [!WARNING]
+> 1. **Selecione o Ambiente:** No Insomnia O "Base Environment" vem vazio. Escolha **Dev (Local)** ou **Prod (Render)** no menu superior esquerdo.
+> Já no Swagger, é exibido para ser selecionado no topo em 'Servers'.
+> 2. **Autenticação Obrigatória:** O sistema utiliza **HttpOnly Cookies**. Antes de testar rotas protegidas (ex: criar assinaturas), execute a requisição de `Login`. O Insomnia/Navegador(Swagger) gerenciará o cookie automaticamente para as próximas chamadas.
+
+---
 
 ## Como rodar localmente
 
@@ -184,21 +188,6 @@ npx prisma db seed
 npm run dev
 
 ```
-
-### Documentação da API
-
-Atualmente, a coleção das requisições pode ser importada no **Insomnia** através do arquivo localizado em 📂 `docs/Insomnia_v1_collection.yaml`.
-
-**Como utilizar:**
-1. Importe o arquivo no **Insomnia**.
-2. No canto superior esquerdo, clique no menu de ambientes (inicialmente estará como *"Base Environment"*).
-3. Selecione o ambiente desejado para preencher a `base_url`:
-   -  **Dev (Local):** Conecta em `http://localhost:3004`
-   -  **Prod/Deploy (Render):** Conecta na API online
-
-> [!WARNING]
-> 1. **Selecione o Ambiente:** O "Base Environment" vem vazio. Escolha **Dev (Local)** ou **Prod (Render)** no menu superior esquerdo.
-> 2. **Autenticação Obrigatória:** O sistema utiliza **HttpOnly Cookies**. Antes de testar rotas protegidas (ex: criar assinaturas), execute a requisição de `Login`. O Insomnia gerenciará o cookie automaticamente para as próximas chamadas.
 
 ---
 
