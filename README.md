@@ -58,6 +58,7 @@ O backend foi construído seguindo **Layered Architecture** (Camadas). A comunic
 * **Database:** PostgreSQL (Neon.tech)
 * **Validação:** Zod
 * **Framework:** Express
+* **Segurança/Auth:** JWT (JSON Web Tokens) e Bcrypt
 
 ---
 
@@ -103,7 +104,7 @@ um **Key Generator Customizado** com um "Handshake Secreto":
 
 * **Mitigação de Timing Attacks:** No fluxo de login, o sistema executa uma comparação de hash simulada (`FAKE_HASH`) mesmo quando o e-mail não é encontrado. Isso padroniza o tempo de resposta da API, impedindo que atacantes descubram quais e-mails estão cadastrados baseados na latência da resposta (User Enumeration).
 
-* **HttpOnly Cookies:** Autenticação via cookie seguro para mitigar riscos de XSS, com API Proxy no Frontend para resolver CORS entre domínios (Vercel/Render), garantindo a entrega dos cookies de autenticação mesmo em navegadores com políticas estritas de privacidade.
+* **Autenticação JWT em HttpOnly Cookies:** Autenticação via cookie seguro para mitigar riscos de XSS, com API Proxy no Frontend para resolver CORS entre domínios (Vercel/Render), garantindo a entrega dos cookies de autenticação mesmo em navegadores com políticas estritas de privacidade.
 
 #### 5. Concorrência e Automação
 * **Optimistic Locking:** Implementado via versionamento (`@version`) na entidade **Assinatura**. Como é a tabela transacional central, isso previne *Race Conditions* onde dois admin/manager tentam editar o mesmo contrato simultaneamente.
@@ -125,7 +126,7 @@ Foco na "base" com Segurança inicial, Auditoria e Fluxos de Governança.
 * [x] **Identity & Access Management (IAM):**
     * **Seed:** Geração automática de *Super Admin* para setup inicial.
     * **Gestão de Equipe:** Controle admin sobre o provisionamento/manutenção de contas, com atribuição estrita de cargos (RBAC).
-    * **Onboarding Seguro:** Geração de senha provisória padronizada (ex: `Mudar.Nome123`) ou personalizada.
+    * **Onboarding Seguro:** Geração de senha provisória (criptografada no banco) padronizada (ex: `Mudar.Nome123`) ou personalizada.
     * **Force Change Password:** Fluxo obrigatório de troca de senha no primeiro login.
 * [x] **Auditoria Avançada:** Registro de logs para auditoria de acesso e também logs com *State Diffing* (comparação JSON de `oldValues` vs `newValues`) para rastreabilidade total de alterações críticas.
 * [x] **Departamentos & Serviços:** Gestão completa (CRUD), Soft Delete e organização estrutural por centros de custo.
