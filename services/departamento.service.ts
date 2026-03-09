@@ -1,11 +1,16 @@
 import { prisma } from "../prisma";
 import { type ServiceResult } from "../utils/service-result";
-import { type CreateDepartamentoDTO } from "../dtos/departamento.dto";
 import { AssinaturaStatus, Prisma } from "../generated/prisma/client";
-import { type DepartamentoResponse } from "../dtos/departamento.dto";
-import { type ChartsResponse } from "../dtos/dashboard.dto";
 
-export class DepartamentoService {
+import {
+  type DepartamentoResponse,
+  type CreateDepartamentoDTO,
+} from "../dtos/departamento.dto";
+import { type ChartsResponse } from "../dtos/dashboard.dto";
+import type { IDepartamentoService } from "../interfaces/departamento.interface";
+
+export class DepartamentoService implements IDepartamentoService {
+
   async criar(
     data: CreateDepartamentoDTO,
   ): Promise<ServiceResult<DepartamentoResponse>> {

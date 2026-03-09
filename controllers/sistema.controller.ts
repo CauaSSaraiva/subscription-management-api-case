@@ -1,13 +1,11 @@
 import { type Request, type Response } from "express";
-import { AssinaturaService } from "../services/assinatura.service";
+// import { AssinaturaService } from "../services/assinatura.service";
+import type { IAssinaturaService } from "../interfaces/assinatura.interface";
 
 
 export class SistemaController {
-  private assinaturaService: AssinaturaService;
 
-  constructor() {
-    this.assinaturaService = new AssinaturaService();
-  }
+  constructor(private readonly assinaturaService: IAssinaturaService) {}
 
   processarVencimentos = async (req: Request, res: Response) => {
 

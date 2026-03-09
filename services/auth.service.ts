@@ -1,22 +1,21 @@
 import { prisma } from "../prisma";
 import { compare } from "bcrypt";
-import { type LoginDTO } from "../dtos/auth.dto";
 import jwt from "jsonwebtoken";
 import { type ServiceResult } from "../utils/service-result";
 import { AcessoStatus } from "../generated/prisma/enums";
-import { type LoginResponse } from "../dtos/auth.dto";
+import { type LoginResponse, type LoginDTO } from "../dtos/auth.dto";
+import type { IAuthService } from "../interfaces/auth.interface";
 
 const FAKE_HASH = process.env.FAKE_HASH!;
-const { sign} = jwt;
+const { sign } = jwt;
 
-export class AuthService {
+export class AuthService implements IAuthService {
+  
   async login(
     data: LoginDTO,
     ipAddress: string,
     userAgent: string,
   ): Promise<ServiceResult<LoginResponse>> {
-
-
     try {
       const user = await prisma.usuario.findUnique({
         where: { email: data.email },

@@ -1,14 +1,12 @@
 import { type Request, type Response } from "express";
 import z from "zod";
-import { LogService } from "../services/logs.service";
+// import { LogService } from "../services/logs.service";
 import { listLogsSchema } from "../dtos/logs.dto";
+import type { ILogsService } from "../interfaces/logs.interface";
 
 export class LogsController {
-  private logsService: LogService;
 
-  constructor() {
-    this.logsService = new LogService();
-  }
+  constructor(private readonly logsService: ILogsService) {}
 
   listar = async (req: Request, res: Response) => {
     const validacaoParams = listLogsSchema.safeParse(req.query);

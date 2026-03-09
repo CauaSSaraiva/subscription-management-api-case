@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { ServicoController } from "../controllers/servico.controller";
+import { ServicoService } from "../services/servico.service";
 import { verificarAutenticacao } from "../middlewares/auth.middleware";
 import { Permissao } from "../middlewares/permissions.middleware";
 import { Role } from "../generated/prisma/enums";
 
 const servicoRoutes = Router();
-const servicoController = new ServicoController()
+const servicoService = new ServicoService()
+const servicoController = new ServicoController(servicoService)
 
 servicoRoutes.post(
   "/",

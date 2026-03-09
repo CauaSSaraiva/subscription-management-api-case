@@ -5,34 +5,23 @@ import {
   type CreateAssinaturaDTO,
   type ListAssinaturaDTO,
   type UpdateAssinaturaDTO,
+  type AssinaturaResponse,
+  type AssinaturaDetalhesResponse,
 } from "../dtos/assinatura.dto";
-import { Moeda, AssinaturaStatus } from "../generated/prisma/client";
+
+import { AssinaturaStatus } from "../generated/prisma/client";
 import { Decimal } from "@prisma/client/runtime/client";
 import { DateUtils } from "../utils/date.utils";
+
 import { LoggerService } from "./logger.service";
-// import { LogAction } from "./logger.service";
 import { LogAction } from "../generated/prisma/client";
 import  { type LogEntryParams } from "./logger.service";
-import { type AssinaturaResponse, type AssinaturaDetalhesResponse } from "../dtos/assinatura.dto";
 
-interface MaisCarosResponse {
-  id: string;
-  servico: string;
-  linkServico: string | null;
-  plano: string;
-  valor: string;
-}
+import type { IAssinaturaService, KpiResult, MaisCarosResponse, ProximosVencimentosResponse } from "../interfaces/assinatura.interface";
 
-interface ProximosVencimentosResponse {
-  id: string;
-  servico: string;
-  linkServico: string | null;
-  valor: string;
-  vencimento: Date;
-  diasRestantes: number;
-}
 
-export class AssinaturaService {
+export class AssinaturaService implements IAssinaturaService {
+
   async criar(
     data: CreateAssinaturaDTO,
     usuarioLogadoId: string,
@@ -506,7 +495,7 @@ export class AssinaturaService {
     }
   }
 
-  async buscarKpi() {
+  async buscarKpi(): Promise<ServiceResult<KpiResult>> {
     try {
       const kpi = await prisma.assinatura.aggregate({
         where: {
@@ -523,7 +512,13 @@ export class AssinaturaService {
         _sum: { preco: true },
       });
 
-      return { ok: true, data: kpi };
+      const dataFormatada: KpiResult = {
+        totalAssinaturas: kpi._count.id,
+        somaPrecos: kpi._sum.preco ? Number(kpi._sum.preco) : 0,
+        mediaPrecos: kpi._avg.preco ? Number(kpi._avg.preco) : 0,
+      };
+
+      return { ok: true, data: dataFormatada };
     } catch (error) {
       return {
         ok: false,

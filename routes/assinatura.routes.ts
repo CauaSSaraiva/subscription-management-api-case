@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { AssinaturaController } from "../controllers/assinatura.controller";
+import { AssinaturaService } from "../services/assinatura.service";
 import { verificarAutenticacao } from "../middlewares/auth.middleware";
 import { Permissao } from "../middlewares/permissions.middleware";
 import { Role } from "../generated/prisma/enums";
 
 const assinaturaRoutes = Router();
-const assinaturaController = new AssinaturaController();
+const assinaturaService = new AssinaturaService()
+const assinaturaController = new AssinaturaController(assinaturaService);
 
 assinaturaRoutes.post(
   "/",

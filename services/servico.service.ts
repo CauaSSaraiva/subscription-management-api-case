@@ -3,11 +3,14 @@ import { type ServiceResult } from "../utils/service-result";
 import {
   type CreateServicoDTO,
   type UpdateServicoDTO,
+  type ServicoResponse,
 } from "../dtos/servico.dto";
-import { Prisma } from "../generated/prisma/client";
-import { type ServicoResponse } from "../dtos/servico.dto";
 
-export class ServicoService {
+import { Prisma } from "../generated/prisma/client";
+import type { IServicoService } from "../interfaces/servico.interface";
+
+export class ServicoService implements IServicoService {
+
   async criar(data: CreateServicoDTO): Promise<ServiceResult<ServicoResponse>> {
     try {
       const servico = await prisma.servico.create({

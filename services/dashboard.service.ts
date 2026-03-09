@@ -1,17 +1,16 @@
 import { type ServiceResult } from "../utils/service-result";
-import { DepartamentoService } from "./departamento.service";
-import { AssinaturaService } from "./assinatura.service";
+// import { DepartamentoService } from "./departamento.service";
+// import { AssinaturaService } from "./assinatura.service";
 import { type DashboardResponse } from "../dtos/dashboard.dto";
+import type { IDepartamentoService } from "../interfaces/departamento.interface";
+import type { IAssinaturaService } from "../interfaces/assinatura.interface";
+import type { IDashboardService } from "../interfaces/dashboard.interface";
 
-
-export class DashboardService {
-  private departamentoService: DepartamentoService;
-  private assinaturaService: AssinaturaService;
-
-  constructor() {
-    this.departamentoService = new DepartamentoService();
-    this.assinaturaService = new AssinaturaService();
-  }
+export class DashboardService implements IDashboardService {
+  constructor(
+    private readonly departamentoService: IDepartamentoService,
+    private readonly assinaturaService: IAssinaturaService,
+  ) {}
 
   async buscarEstatisticas(): Promise<ServiceResult<DashboardResponse>> {
     try {
@@ -26,25 +25,23 @@ export class DashboardService {
       let cards = null;
 
       const kpiRaw = kpiRes.ok ? kpiRes.data : null;
+
       const porDepartamento =
         porDepartamentoRes.ok && porDepartamentoRes.data
           ? porDepartamentoRes.data
           : [];
+
       const maisCaros = maisCarosRes.ok ? maisCarosRes.data : [];
+
       const proximosVencimentos = proximosVencimentosRes.ok
         ? proximosVencimentosRes.data
         : [];
 
       if (kpiRaw) {
-        const totalAssinaturas = kpiRaw._count.id ?? 0;
-        const totalSoma = Number(kpiRaw._sum.preco ?? 0);
-        const ticketMedio =
-          totalAssinaturas > 0 ? totalSoma / totalAssinaturas : 0;
-
         cards = {
-          totalMensal: totalSoma.toFixed(2),
-          totalAssinaturas,
-          ticketMedio: ticketMedio.toFixed(2),
+          totalMensal: kpiRaw.somaPrecos.toFixed(2),
+          totalAssinaturas: kpiRaw.totalAssinaturas,
+          ticketMedio: kpiRaw.mediaPrecos.toFixed(2),
         };
       }
 

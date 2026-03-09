@@ -3,16 +3,16 @@ import { loginSchema } from "../dtos/auth.dto";
 import { AuthService } from "../services/auth.service";
 import { UsuarioService } from "../services/usuario.service";
 import z from "zod";
-import { idParamSchema } from "../dtos/params.dto";
+import type { IAuthService } from "../interfaces/auth.interface";
+import type { IUsuarioService } from "../interfaces/usuario.interface";
+// import { idParamSchema } from "../dtos/params.dto";
 
 export class AuthController {
-  private authService: AuthService;
-  private usuarioService: UsuarioService;
-
-  constructor() {
-    this.authService = new AuthService();
-    this.usuarioService = new UsuarioService();
-  }
+  
+  constructor(
+    private readonly authService: IAuthService,
+    private readonly usuarioService: IUsuarioService,
+  ) {}
 
   login = async (req: Request, res: Response) => {
     const validation = loginSchema.safeParse(req.body);

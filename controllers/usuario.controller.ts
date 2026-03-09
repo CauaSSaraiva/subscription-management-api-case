@@ -1,15 +1,13 @@
 import { type Request, type Response } from "express";
 import { createUsuarioSchema, updateUsuarioSchema, updateSenhaUsuarioSchema } from "../dtos/usuario.dto";
-import { UsuarioService } from "../services/usuario.service";
+// import { UsuarioService } from "../services/usuario.service";
 import { idParamSchema } from "../dtos/params.dto";
 import z from "zod";
+import type { IUsuarioService } from "../interfaces/usuario.interface";
 
 export class UsuarioController {
-  private usuarioService: UsuarioService;
 
-  constructor() {
-    this.usuarioService = new UsuarioService();
-  }
+  constructor(private readonly usuarioService: IUsuarioService) {}
 
   criar = async (req: Request, res: Response) => {
     const validacao = createUsuarioSchema.safeParse(req.body);

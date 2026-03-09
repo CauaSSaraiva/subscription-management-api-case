@@ -1,12 +1,10 @@
 import { type Request, type Response } from "express";
-import { DashboardService } from "../services/dashboard.service";
+// import { DashboardService } from "../services/dashboard.service";
+import type { IDashboardService } from "../interfaces/dashboard.interface";
 
 export class DashboardController {
-  private dashboardService: DashboardService;
 
-  constructor() {
-    this.dashboardService = new DashboardService();
-  }
+  constructor(private readonly dashboardService: IDashboardService) {}
 
   exibirEstatisticas = async (req: Request, res: Response) => {
     const resultado = await this.dashboardService.buscarEstatisticas();

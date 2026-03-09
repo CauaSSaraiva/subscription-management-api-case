@@ -1,21 +1,26 @@
 import { prisma } from "../prisma";
 import { hash, compare } from "bcrypt";
-import { type CreateUsuarioDTO } from "../dtos/usuario.dto";
+
 import { type ServiceResult } from "../utils/service-result";
-import { type UpdateUsuarioDTO } from "../dtos/usuario.dto";
-import type { UpdateSenhaUsuarioDTO } from "../dtos/usuario.dto";
+
 import { Prisma } from "../generated/prisma/client";
+
 import { LoggerService } from "./logger.service";
 import { LogAction } from "../generated/prisma/client";
 
 import {
+  type CreateUsuarioDTO,
+  type UpdateUsuarioDTO,
+  type UpdateSenhaUsuarioDTO,
   type UsuarioResponse,
   type UsuarioAdminResponse,
   type UsuarioSelectResponse,
   type UsuarioPerfilResponse,
 } from "../dtos/usuario.dto";
+import type { IUsuarioService } from "../interfaces/usuario.interface";
 
-export class UsuarioService {
+export class UsuarioService implements IUsuarioService {
+  
   private gerarSenhaPadrao(nome: string): string {
     const nomeLimpo = nome.trim();
     const primeiroNome = nomeLimpo.split(" ")[0] || "Usuario";

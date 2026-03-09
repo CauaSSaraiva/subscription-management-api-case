@@ -2,10 +2,11 @@ import { prisma } from "../prisma";
 import { type ServiceResult } from "../utils/service-result";
 import { Prisma } from "../generated/prisma/client";
 import { type LogsResponse, type ListLogsDTO } from "../dtos/logs.dto";
+import type { ILogsService } from "../interfaces/logs.interface";
 
 
 
-export class LogService {
+export class LogService implements ILogsService {
  
   async listar(
     params: ListLogsDTO,

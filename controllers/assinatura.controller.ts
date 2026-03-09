@@ -4,16 +4,15 @@ import {
   listAssinaturaSchema,
   updateAssinaturaSchema,
 } from "../dtos/assinatura.dto";
-import { AssinaturaService } from "../services/assinatura.service";
+// import { AssinaturaService } from "../services/assinatura.service";
 import { idParamSchema } from "../dtos/params.dto";
 import z from "zod";
 
-export class AssinaturaController {
-  private assinaturaService: AssinaturaService;
+import { type IAssinaturaService } from "../interfaces/assinatura.interface";
 
-  constructor() {
-    this.assinaturaService = new AssinaturaService();
-  }
+export class AssinaturaController {
+
+  constructor(private readonly assinaturaService: IAssinaturaService) {}
 
   criar = async (req: Request, res: Response) => {
     // em teoria nunca acontece, mas necessário para typescript pois não reconhece middleware

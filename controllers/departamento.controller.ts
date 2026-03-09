@@ -1,16 +1,13 @@
 import { type Request, type Response } from "express";
 import { idParamNumberSchema } from "../dtos/params.dto";
-import { DepartamentoService } from "../services/departamento.service";
 import { createDepartamentoSchema } from "../dtos/departamento.dto";
-
 import z from "zod";
 
-export class DepartamentoController {
-  private departamentoService: DepartamentoService;
+import type { IDepartamentoService } from "../interfaces/departamento.interface";
 
-  constructor() {
-    this.departamentoService = new DepartamentoService();
-  }
+export class DepartamentoController {
+
+  constructor(private readonly departamentoService: IDepartamentoService) {}
 
   criar = async (req: Request, res: Response) => {
     const validacao = createDepartamentoSchema.safeParse(req.body);

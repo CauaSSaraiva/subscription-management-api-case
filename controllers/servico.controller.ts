@@ -4,13 +4,11 @@ import { ServicoService } from "../services/servico.service";
 import { idParamSchema } from "../dtos/params.dto";
 import { updateServicoSchema } from "../dtos/servico.dto";
 import z from "zod";
+import type { IServicoService } from "../interfaces/servico.interface";
 
 export class ServicoController {
-  private servicoService: ServicoService;
 
-  constructor() {
-    this.servicoService = new ServicoService();
-  }
+  constructor(private readonly servicoService: IServicoService) {}
 
   criar = async (req: Request, res: Response) => {
     const validacao = createServicoSchema.safeParse(req.body);
