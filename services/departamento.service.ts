@@ -167,7 +167,12 @@ export class DepartamentoService {
         by: ["departamentoId"],
         where: {
           deletedAt: null,
-          status: AssinaturaStatus.ATIVO,
+          status: {
+            in: [
+              AssinaturaStatus.ATIVO,
+              AssinaturaStatus.RENOVACAO_PENDENTE,
+            ]
+          }
         },
         _sum: { preco: true },
       });

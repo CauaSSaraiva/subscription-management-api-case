@@ -511,7 +511,12 @@ export class AssinaturaService {
       const kpi = await prisma.assinatura.aggregate({
         where: {
           deletedAt: null,
-          status: AssinaturaStatus.ATIVO,
+          status: {
+            in: [
+              AssinaturaStatus.ATIVO,
+              AssinaturaStatus.RENOVACAO_PENDENTE,
+            ]
+          }
         },
         _avg: { preco: true },
         _count: { id: true },
@@ -547,7 +552,9 @@ export class AssinaturaService {
         },
         where: {
           deletedAt: null,
-          status: AssinaturaStatus.ATIVO,
+          status: {
+            in: [AssinaturaStatus.ATIVO, AssinaturaStatus.RENOVACAO_PENDENTE],
+          },
         },
         orderBy: {
           preco: "desc",
@@ -587,7 +594,12 @@ export class AssinaturaService {
 
       const vencimentos = await prisma.assinatura.findMany({
         where: {
-          status: AssinaturaStatus.ATIVO,
+          status: {
+            in: [
+              AssinaturaStatus.ATIVO,
+              AssinaturaStatus.RENOVACAO_PENDENTE,
+            ]
+          },
           deletedAt: null,
           nextBilling: {
             gte: dataInicio, // Maior ou igual ao início de hoje
