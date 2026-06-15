@@ -80,13 +80,11 @@ O backend foi construído seguindo **Layered Architecture** (Camadas). A comunic
 Implementei Rate Limiting contra Brute-Force e DDoS  resolvendo desafios de infraestrutura (Render/Vercel).
 * **Arquitetura Base:** Estratégia de *Fixed Window* (100 req/10min para rotas comuns, 5 req/1h para Auth).
 
-* **Desafio:** Em nuvem, o IP de conexão (`req.ip`) geralmente é do Load Balancer. Confiar cegamente no `x-forwarded-for` permite spoofing. Além disso, o Server-Side Rendering (SSR) do Next.js poderia ser bloqueado ao fazer requisições do servidor.
-* **Solução "Conditional Trust":** 
-um **Key Generator Customizado** com um "Handshake Secreto":
-    * **Tráfego Cliente (Proxy):** Se possui o Segredo + `x-forwarded-for`, o sistema confia no header e extrai o IP real do cliente.
-    * **Tráfego SSR (Servidor):** Se possui Segredo mas sem IP repassado, é identificado como "TRUSTED_SSR_SERVER" (bypass).
-    * **Tráfego Não Confiável:** Sem segredo, ignora headers injetados e bloqueia o IP de conexão real.
-
+* **Desafio:** Em nuvem, o IP de conexão (`req.ip`) geralmente é do Load Balancer. Extrair o IP do cliente pelo cabeçalho padrão `x-forwarded-for` diretamente na API abre brecha para ataques de IP Spoofing. Além disso, as chamadas de Server-Side Rendering (SSR) do Next.js poderiam ser bloqueadas por compartilharem o IP do próprio servidor do front-end.
+* **Solução "BFF & Conditional Trust":**
+    * **Tráfego Cliente (Proxy Frontend):** A Vercel garante a extração do IP real do usuário, sanitiza os dados e os injeta em um cabeçalho customizado. A API na Render confia exclusivamente neste cabeçalho, DESDE QUE SEJA validado pelo Secret, ignorando x-forwarded-for forjados.
+    * **Tráfego SSR (Servidor):** Se a requisição possui o Secret, mas não repassa o IP do cliente (chamada interna), é identificada como TRUSTED_SSR_SERVER (bypass), evitando a queda da renderização do front-end.
+    * **Tráfego Não Confiável:** Chamadas diretas à API (sem o Secret) têm seus cabeçalhos HTTP ignorados e caem na malha do rate limit utilizando o IP da conexão física da rota.
 
 #### 3. Auditoria e Integridade de dados
 
