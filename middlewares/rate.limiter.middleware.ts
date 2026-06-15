@@ -42,19 +42,21 @@ const pegarIpSafe = (req: any): string => {
 
   // Chamada autenticada (vem do front/proxy)
   if (ENV_SECRET && secretHeader === ENV_SECRET) {
-    const forwarded = req.headers["x-forwarded-for"];
+    // const forwarded = req.headers["x-forwarded-for"];
 
     // se tem IP repassado (é o proxy do client-side), usa esse IP.
-    if (forwarded) {
-      const clientIp = (
-        typeof forwarded === "string" ? forwarded : forwarded[0]
-      )
-        .split(",")[0]
-        .trim();
+    // if (forwarded) {
+    //   const clientIp = (
+    //     typeof forwarded === "string" ? forwarded : forwarded[0]
+    //   )
+    //     .split(",")[0]
+    //     .trim();
+    const trueClientIp = req.headers["x-true-client-ip"];
 
-      return normalizarIp(clientIp);
+    if (trueClientIp) {
+      return normalizarIp(trueClientIp as string);
     }
-
+    
     // fail-safe caso a função de skip falhar (skip roda primeiro, em teoria nunca cairá aqui e nem deve)
     return "TRUSTED_SSR_SERVER";
   }
@@ -66,10 +68,11 @@ const pegarIpSafe = (req: any): string => {
 // skipar chamadas server-side confiáveis do next.js
 const devePular = (req: any): boolean => {
   const secretHeader = req.headers["x-internal-secret"];
-  const forwarded = req.headers["x-forwarded-for"];
+  // const forwarded = req.headers["x-forwarded-for"];
+  const trueClientIp = req.headers["x-true-client-ip"];
 
   // evitar bloquear o próprio servidor do front de renderizar páginas.
-  if (ENV_SECRET && secretHeader === ENV_SECRET && !forwarded) {
+  if (ENV_SECRET && secretHeader === ENV_SECRET && !trueClientIp) {
     console.log("[RateLimit] Pular verificação: SSR Confiável detectado.");
     return true;
   }
